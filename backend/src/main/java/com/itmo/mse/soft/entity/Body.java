@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import javax.persistence.*;
 
 @Entity
-public class Body {
+public class Body implements IBodyState {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -12,4 +12,14 @@ public class Body {
     protected BigInteger paymentId;
     protected String barCode;
     protected String state;
+    protected BodyState bodyState;
+    protected boolean isInFridge;
+
+    public BodyState getBodyState() {
+        return this.bodyState;
+    }
+
+    public boolean isInFridge() {
+        return this.isInFridge;
+    }
 }
