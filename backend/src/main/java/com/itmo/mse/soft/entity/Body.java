@@ -12,6 +12,11 @@ public class Body implements IBodyState {
     protected BigInteger paymentId;
     protected String barCode;
     protected String state;
+
+    public void setBodyState(BodyState bodyState) {
+        this.bodyState = bodyState;
+    }
+
     protected BodyState bodyState;
     protected boolean isInFridge;
 
