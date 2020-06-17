@@ -1,4 +1,5 @@
 package com.itmo.mse.soft.task;
 
-public class TaskType {
+public enum TaskType {
+    PICKUP, GROOM, FEED, REGULAR_FEED
 }

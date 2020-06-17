@@ -4,13 +4,16 @@ import com.itmo.mse.soft.entity.Body;
 import com.itmo.mse.soft.entity.BodyState;
 import com.itmo.mse.soft.entity.Employee;
 import com.itmo.mse.soft.entity.EmployeeRole;
-import com.itmo.mse.soft.repository.BodyRepository;
-import com.itmo.mse.soft.repository.EmployeeRepository;
+import com.itmo.mse.soft.repository.*;
+import com.itmo.mse.soft.schedule.ScheduleEntry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Instant;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,6 +24,14 @@ public class RepositoryTests {
     private BodyRepository bodyRepository;
     @Autowired
     private EmployeeRepository employeeRepository;
+    @Autowired
+    private PigstyRepository pigstyRepository;
+    @Autowired
+    private ScheduleEntryRepository scheduleEntryRepository;
+    @Autowired
+    private SubTaskRepository subTaskRepository;
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Test
     void savesBody() {
@@ -48,5 +59,24 @@ public class RepositoryTests {
         var savedBody = employeeRepository.findById(employee.getEmployeeId()).orElseThrow();
 
         assertThat(savedBody).isEqualToComparingFieldByField(employee);
+    }
+
+    @Test
+    void savesAndLoadsScheduleEntry() {
+        ScheduleEntry scheduleEntry = ScheduleEntry.builder()
+                .timeStart(Instant.now())
+                .timeEnd(Instant.now()).build();
+
+        scheduleEntry.setSubEntries(IntStream.range(0, 2).mapToObj(i -> ScheduleEntry.builder()
+                .parent(scheduleEntry)
+                .timeStart(Instant.now())
+                .timeEnd(Instant.now())
+                .build()).collect(Collectors.toList()));
+
+        scheduleEntryRepository.save(scheduleEntry);
+
+        var loadedEntry = scheduleEntryRepository.findById(scheduleEntry.getScheduleEntryId()).orElseThrow();
+        assertThat(loadedEntry).isEqualToIgnoringGivenFields(scheduleEntry, "subEntries");
+        assertThat(loadedEntry.getSubEntries().size()).isEqualTo(scheduleEntry.getSubEntries().size());
     }
 }
