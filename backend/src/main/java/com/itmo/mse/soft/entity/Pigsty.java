@@ -7,9 +7,6 @@ public class Pigsty {
     static Instant lastFeedScheduleEntry = Instant.now();
 
     public static void feedPigs(Body body){
-        body.setBodyState(BodyState.BodyState.IN_FEEDING);
-        lastFeedScheduleEntry = Instant.now();
-        body.setBodyState(BodyState.BodyState.FED);
     }
 
 }
