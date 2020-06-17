@@ -1,30 +1,16 @@
 package com.itmo.mse.soft.entity;
 
-import java.math.BigInteger;
+import lombok.Data;
+
+import java.util.UUID;
 import javax.persistence.*;
 
-@Entity
-public class Body implements IBodyState {
+@Data
+public class Body {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    protected BigInteger id;
-    protected BigInteger paymentId;
-    protected String barCode;
-    protected String state;
+    private UUID id;
+    private UUID paymentId;
+    private String barcode;
+    private BodyState state;
 
-    public void setBodyState(BodyState bodyState) {
-        this.bodyState = bodyState;
-    }
-
-    protected BodyState bodyState;
-    protected boolean isInFridge;
-
-    public BodyState getBodyState() {
-        return this.bodyState;
-    }
-
-    public boolean isInFridge() {
-        return this.isInFridge;
-    }
 }
