@@ -19,14 +19,14 @@ import javax.persistence.*;
 @Entity
 public class Body {
 
-    @GeneratedValue
-    @Type(type="uuid-char")
     @Id
     @Column
+    @GeneratedValue
+    @Type(type="uuid-char")
     private UUID id;
 
-    @Type(type="uuid-char")
     @Column
+    @Type(type="uuid-char")
     private UUID paymentId;
 
     @Column

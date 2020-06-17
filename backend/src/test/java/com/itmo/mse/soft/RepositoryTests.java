@@ -2,7 +2,10 @@ package com.itmo.mse.soft;
 
 import com.itmo.mse.soft.entity.Body;
 import com.itmo.mse.soft.entity.BodyState;
+import com.itmo.mse.soft.entity.Employee;
+import com.itmo.mse.soft.entity.EmployeeRole;
 import com.itmo.mse.soft.repository.BodyRepository;
+import com.itmo.mse.soft.repository.EmployeeRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +19,8 @@ public class RepositoryTests {
 
     @Autowired
     private BodyRepository bodyRepository;
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
     @Test
     void savesBody() {
@@ -35,4 +40,13 @@ public class RepositoryTests {
         assertThat(savedBody).isEqualToComparingFieldByField(body);
     }
 
+    @Test
+    void savesAndLoadsEmployee() {
+        Employee employee = Employee.builder().name("Shureek").employeeRole(EmployeeRole.GROOMER).build();
+
+        employeeRepository.save(employee);
+        var savedBody = employeeRepository.findById(employee.getEmployeeId()).orElseThrow();
+
+        assertThat(savedBody).isEqualToComparingFieldByField(employee);
+    }
 }
