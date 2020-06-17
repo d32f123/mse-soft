@@ -27,26 +27,26 @@ public class Task {
     @Type(type = "uuid-char")
     private UUID taskId;
 
-    @ManyToOne
+    @ManyToOne(optional = false, cascade = CascadeType.MERGE)
     private Employee employee;
 
-    @OneToOne
+    @OneToOne(optional = false, cascade = CascadeType.ALL)
     private ScheduleEntry scheduleEntry;
 
-    @Column
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TaskType taskType;
 
     @Column
     private boolean isComplete;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     private Body body;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     private Pigsty pigsty;
 
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<SubTask> subTasks;
 
 }

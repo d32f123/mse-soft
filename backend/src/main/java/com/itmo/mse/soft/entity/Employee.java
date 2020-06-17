@@ -22,10 +22,10 @@ public class Employee {
     @Type(type="uuid-char")
     private UUID employeeId;
 
-    @Column
+    @Column(nullable = false)
     private String name;
 
-    @Column
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private EmployeeRole employeeRole;
 }

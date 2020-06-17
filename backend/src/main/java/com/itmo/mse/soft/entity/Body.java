@@ -1,13 +1,11 @@
 package com.itmo.mse.soft.entity;
 
+import com.itmo.mse.soft.order.Payment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
-import org.hibernate.id.UUIDGenerationStrategy;
-import org.hibernate.id.UUIDGenerator;
-import org.hibernate.id.uuid.StandardRandomStrategy;
 
 import java.util.UUID;
 import javax.persistence.*;
@@ -25,14 +23,13 @@ public class Body {
     @Type(type="uuid-char")
     private UUID id;
 
-    @Column
-    @Type(type="uuid-char")
-    private UUID paymentId;
+    @OneToOne(optional = false, cascade = CascadeType.ALL)
+    private Payment payment;
 
     @Column
     private String barcode;
 
-    @Column
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private BodyState state;
 

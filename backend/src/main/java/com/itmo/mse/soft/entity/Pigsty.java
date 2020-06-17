@@ -24,16 +24,13 @@ public class Pigsty {
     @Type(type = "uuid-char")
     private UUID pigstyId;
 
-    @Column
+    @Column(nullable = false)
     int pigAmount;
 
-    @Column
+    @Column(nullable = false)
     int pigstyNumber;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.MERGE)
     Task lastFedTask;
-
-    @Column
-    Instant lastFeedScheduleEntry;
 
 }

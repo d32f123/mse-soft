@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@ToString(exclude = {"subEntries"})
+@ToString(exclude = {"parent"})
 public class ScheduleEntry{
 
     @Id
@@ -28,7 +28,7 @@ public class ScheduleEntry{
     @Column(nullable = false)
     private Instant timeEnd;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     private ScheduleEntry parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
