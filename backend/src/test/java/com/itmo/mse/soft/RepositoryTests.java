@@ -322,27 +322,62 @@ public class RepositoryTests {
         assertThat(taskRepository.existsByPigstyAndTimeIntersection(
                 testHelper.getDayAt(4, 12, 2020),
                 testHelper.getDayAt(7, 12, 2020),
-                pigsty.getPigstyId())
-        ).isTrue();
+                pigsty.getPigstyId()
+        )).isTrue();
+        assertThat(taskRepository.findIntersectionsByEmployeeRoleAndTime(
+                EmployeeRole.PIG_MASTER,
+                testHelper.getDayAt(4, 12, 2020),
+                testHelper.getDayAt(7, 12, 2020)
+        )).isNotEmpty();
         assertThat(taskRepository.existsByPigstyAndTimeIntersection(
                 testHelper.getDayAt(2, 12, 2020),
                 testHelper.getDayAt(4, 12, 2020),
                 pigsty.getPigstyId()
         )).isTrue();
+        assertThat(taskRepository.findIntersectionsByEmployeeRoleAndTime(
+                EmployeeRole.PIG_MASTER,
+                testHelper.getDayAt(2, 12, 2020),
+                testHelper.getDayAt(4, 12, 2020)
+        )).isNotEmpty();
         assertThat(taskRepository.existsByPigstyAndTimeIntersection(
                 testHelper.getDayAt(1, 12, 2020),
                 testHelper.getDayAt(2, 12, 2020),
                 pigsty.getPigstyId()
         )).isFalse();
+        assertThat(taskRepository.findIntersectionsByEmployeeRoleAndTime(
+                EmployeeRole.PIG_MASTER,
+                testHelper.getDayAt(1, 12, 2020),
+                testHelper.getDayAt(2, 12, 2020)
+        )).isEmpty();
         assertThat(taskRepository.existsByPigstyAndTimeIntersection(
                 testHelper.getDayAt(7, 12, 2020),
                 testHelper.getDayAt(8, 12, 2020),
                 pigsty.getPigstyId()
         )).isFalse();
+        assertThat(taskRepository.findIntersectionsByEmployeeRoleAndTime(
+                EmployeeRole.PIG_MASTER,
+                testHelper.getDayAt(7, 12, 2020),
+                testHelper.getDayAt(8, 12, 2020)
+        )).isEmpty();
         assertThat(taskRepository.existsByPigstyAndTimeIntersection(
                 testHelper.getDayAt(4, 12, 2020),
                 testHelper.getDayAt(5, 12, 2020),
                 pigsty.getPigstyId()
-        ));
+        )).isTrue();
+        assertThat(taskRepository.findIntersectionsByEmployeeRoleAndTime(
+                EmployeeRole.PIG_MASTER,
+                testHelper.getDayAt(4, 12, 2020),
+                testHelper.getDayAt(5, 12, 2020)
+        )).isNotEmpty();
+        assertThat(taskRepository.existsByPigstyAndTimeIntersection(
+                testHelper.getDayAt(2, 12, 2020),
+                testHelper.getDayAt(8, 12, 2020),
+                pigsty.getPigstyId()
+        )).isTrue();
+        assertThat(taskRepository.findIntersectionsByEmployeeRoleAndTime(
+                EmployeeRole.PIG_MASTER,
+                testHelper.getDayAt(4, 12, 2020),
+                testHelper.getDayAt(5, 12, 2020)
+        )).isNotEmpty();
     }
 }
