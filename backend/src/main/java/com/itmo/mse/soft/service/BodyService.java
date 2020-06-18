@@ -13,6 +13,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -80,6 +81,16 @@ public class BodyService extends EntityService<Body> {
 
     public Optional<Body> getBodyByPaymentId(UUID paymentId) {
         return entityRepository.findBodyByPayment(Payment.builder().paymentId(paymentId).build());
+    }
+
+    public Set<BodyState> getValidTransitions(BodyState bodyState) {
+        return stateTransitions.keySet().stream()
+                .filter(key -> key.getBodyState() != bodyState)
+                .map(stateTransitions::get)
+                .reduce(new HashSet<>(), (acc, x) -> {
+                    acc.addAll(x);
+                    return acc;
+                });
     }
 
     public Set<BodyState> getValidTransitions(EmployeeRole employeeRole, BodyState bodyState) {
