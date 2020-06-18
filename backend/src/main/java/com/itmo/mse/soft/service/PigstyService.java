@@ -38,7 +38,7 @@ public class PigstyService extends EntityService<Pigsty> {
                     pigsty.getPigstyId(), task.getTaskId());
             return task;
         }
-        if (taskRepository.existsTaskByTimeAndPigsty(
+        if (taskRepository.existsByPigstyAndTimeIntersection(
                 task.getScheduleEntry().getTimeStart(),
                 task.getScheduleEntry().getTimeEnd(),
                 pigsty.getPigstyId()

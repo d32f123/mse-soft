@@ -303,7 +303,7 @@ public class RepositoryTests {
 
         var entry = ScheduleEntry.builder()
                 .timeStart(testHelper.getDayAt(3, 12, 2020))
-                .timeEnd(testHelper.getDayAt(5, 12, 2020))
+                .timeEnd(testHelper.getDayAt(6, 12, 2020))
                 .build();
 
         var body = createBody();
@@ -319,25 +319,30 @@ public class RepositoryTests {
 
         taskRepository.save(task);
 
-        assertThat(taskRepository.existsTaskByTimeAndPigsty(
+        assertThat(taskRepository.existsByPigstyAndTimeIntersection(
                 testHelper.getDayAt(4, 12, 2020),
-                testHelper.getDayAt(6, 12, 2020),
+                testHelper.getDayAt(7, 12, 2020),
                 pigsty.getPigstyId())
         ).isTrue();
-        assertThat(taskRepository.existsTaskByTimeAndPigsty(
+        assertThat(taskRepository.existsByPigstyAndTimeIntersection(
                 testHelper.getDayAt(2, 12, 2020),
                 testHelper.getDayAt(4, 12, 2020),
                 pigsty.getPigstyId()
         )).isTrue();
-        assertThat(taskRepository.existsTaskByTimeAndPigsty(
+        assertThat(taskRepository.existsByPigstyAndTimeIntersection(
                 testHelper.getDayAt(1, 12, 2020),
                 testHelper.getDayAt(2, 12, 2020),
                 pigsty.getPigstyId()
         )).isFalse();
-        assertThat(taskRepository.existsTaskByTimeAndPigsty(
+        assertThat(taskRepository.existsByPigstyAndTimeIntersection(
                 testHelper.getDayAt(7, 12, 2020),
                 testHelper.getDayAt(8, 12, 2020),
                 pigsty.getPigstyId()
         )).isFalse();
+        assertThat(taskRepository.existsByPigstyAndTimeIntersection(
+                testHelper.getDayAt(4, 12, 2020),
+                testHelper.getDayAt(5, 12, 2020),
+                pigsty.getPigstyId()
+        ));
     }
 }
