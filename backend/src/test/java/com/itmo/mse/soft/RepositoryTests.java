@@ -5,6 +5,8 @@ import com.itmo.mse.soft.order.Order;
 import com.itmo.mse.soft.order.Payment;
 import com.itmo.mse.soft.repository.*;
 import com.itmo.mse.soft.schedule.ScheduleEntry;
+import com.itmo.mse.soft.task.SubTask;
+import com.itmo.mse.soft.task.SubTaskType;
 import com.itmo.mse.soft.task.Task;
 import com.itmo.mse.soft.task.TaskType;
 import org.junit.jupiter.api.Test;
@@ -13,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.UUID;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -40,7 +42,7 @@ public class RepositoryTests {
     private PaymentRepository paymentRepository;
 
     @Test
-    void loadsBody() {
+    void savesAndLoadsBody() {
         var order = Order.builder()
                 .paymentAmount(new BigDecimal("123.5"))
                 .paymentInstant(Instant.now())
@@ -151,7 +153,13 @@ public class RepositoryTests {
         var scheduleEntry = ScheduleEntry.builder()
                 .timeStart(Instant.now())
                 .timeEnd(Instant.now())
-                .build();
+                .subEntries(IntStream.range(0, 2).mapToObj(i -> ScheduleEntry.builder()
+                    .timeStart(Instant.now())
+                    .timeEnd(Instant.now())
+                    .build()).collect(Collectors.toList())
+                ).build();
+        scheduleEntry.getSubEntries().forEach(subEntry -> subEntry.setParent(scheduleEntry));
+
         Body body = Body.builder()
                 .payment(Payment.builder()
                         .creationInstant(Instant.now())
@@ -172,6 +180,7 @@ public class RepositoryTests {
                 .build();
         pigstyRepository.save(pigsty);
 
+
         Task task = Task.builder()
                 .taskType(TaskType.GROOM)
                 .body(body)
@@ -180,10 +189,84 @@ public class RepositoryTests {
                 .isComplete(false)
                 .pigsty(pigsty)
                 .build();
+
+        task.setSubTasks(
+                IntStream.range(0, 2)
+                        .mapToObj(
+                                i -> SubTask.builder()
+                                .parent(task)
+                                .isComplete(true)
+                                .scheduleEntry(scheduleEntry.getSubEntries().get(i))
+                                .subTaskType(SubTaskType.PICKUP_FROM_CUSTOMER)
+                                .build()
+                        ).collect(Collectors.toList())
+        );
         taskRepository.save(task);
 
         var loadedTask = taskRepository.findById(task.getTaskId()).orElseThrow();
-        assertThat(loadedTask).isEqualToIgnoringGivenFields(task, "subTasks", "scheduleEntry");
-        assertThat(loadedTask.getScheduleEntry()).isEqualToIgnoringNullFields(task.getScheduleEntry());
+        assertThat(loadedTask).isEqualToIgnoringGivenFields(task,
+                "subTasks", "scheduleEntry", "subTasks");
+        assertThat(loadedTask.getSubTasks().isEmpty()).isFalse();
+        assertThat(loadedTask.getSubTasks().size()).isEqualTo(task.getSubTasks().size());
+        assertThat(loadedTask.getScheduleEntry().getScheduleEntryId())
+                .isEqualByComparingTo(task.getScheduleEntry().getScheduleEntryId());
+        assertThat(loadedTask.getScheduleEntry().getSubEntries()).isNotNull();
+        assertThat(loadedTask.getScheduleEntry().getSubEntries().isEmpty()).isFalse();
+        assertThat(loadedTask.getScheduleEntry().getSubEntries().size())
+                .isEqualTo(scheduleEntry.getSubEntries().size());
+    }
+
+    @Test
+    void savesAndLoadsSubTask() {
+        var scheduleEntry = ScheduleEntry.builder()
+                .timeStart(Instant.now())
+                .timeEnd(Instant.now())
+                .subEntries(
+                        Collections.singletonList(ScheduleEntry.builder()
+                                .timeStart(Instant.now())
+                                .timeEnd(Instant.now())
+                                .build())
+                )
+                .build();
+        scheduleEntry.getSubEntries().get(0).setParent(scheduleEntry);
+
+        var employee = Employee.builder()
+                .name("Vasya")
+                .employeeRole(EmployeeRole.GROOMER)
+                .build();
+
+        employeeRepository.save(employee);
+
+        Task task = Task.builder()
+                .employee(employee)
+                .scheduleEntry(scheduleEntry)
+                .isComplete(false)
+                .taskType(TaskType.GROOM)
+                .build();
+
+        taskRepository.save(task);
+
+        SubTask subTask = SubTask.builder()
+                .subTaskType(SubTaskType.SHAVE)
+                .isComplete(false)
+                .scheduleEntry(scheduleEntry.getSubEntries().get(0))
+                .parent(task)
+                .build();
+        subTaskRepository.save(subTask);
+
+        var loadedSubTask = subTaskRepository.findById(subTask.getSubTaskId()).orElseThrow();
+        assertThat(loadedSubTask).isEqualToIgnoringGivenFields(subTask,
+                "parent", "scheduleEntry");
+        assertThat(loadedSubTask.getScheduleEntry()).isEqualToIgnoringGivenFields(
+                scheduleEntry.getSubEntries().get(0), "parent", "subEntries");
+        assertThat(loadedSubTask.getParent()).isNotNull();
+        assertThat(loadedSubTask.getParent().getTaskId()).isNotNull();
+        assertThat(loadedSubTask.getParent().getTaskId()).isEqualByComparingTo(task.getTaskId());
+        assertThat(loadedSubTask.getScheduleEntry().getSubEntries()).isEmpty();
+        assertThat(loadedSubTask.getParent()).isNotNull();
+        assertThat(loadedSubTask.getParent().getTaskId()).isNotNull();
+        assertThat(loadedSubTask.getParent().getTaskId()).isEqualByComparingTo(task.getTaskId());
+
+        assertThat(loadedSubTask.getScheduleEntry().getParent()).isNotNull();
     }
 }
