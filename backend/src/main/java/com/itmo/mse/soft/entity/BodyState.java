@@ -12,7 +12,7 @@ public enum BodyState {
 
     public final boolean isInFridge;
 
-    private BodyState(boolean isInFridge) {
+    BodyState(boolean isInFridge) {
         this.isInFridge = isInFridge;
     }
 }
