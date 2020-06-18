@@ -87,8 +87,13 @@ public class BodyService extends EntityService<Body> {
                 .employeeRole(employeeRole).bodyState(bodyState).build(), Collections.emptySet());
     }
 
+    public Body transitionBody(UUID bodyId, EmployeeRole employeeRole, BodyState desiredState) {
+        var body = entityRepository.findById(bodyId).orElseThrow();
+        return transitionBody(body, employeeRole, desiredState);
+    }
     public Body transitionBody(Body body, EmployeeRole employeeRole, BodyState desiredState) {
         log.debug("Transitioning body '{}' by '{}' to '{}'", body.getId(), employeeRole, desiredState);
+
         if (!this.getValidTransitions(employeeRole, body.getState()).contains(desiredState)) {
             log.warn("Tried to transition body '{}' by employee '{}' to state '{}' but no valid state found",
                     body.getId(), employeeRole, desiredState);

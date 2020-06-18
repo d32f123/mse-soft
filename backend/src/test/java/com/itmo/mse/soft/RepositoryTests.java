@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -40,6 +41,23 @@ public class RepositoryTests {
     private OrderRepository orderRepository;
     @Autowired
     private PaymentRepository paymentRepository;
+    @Autowired
+    private TestHelper testHelper;
+
+    Body createBody() {
+        return Body.builder()
+                .payment(
+                        Payment.builder()
+                                .order(
+                                        Order.builder()
+                                        .paymentInstant(Instant.now())
+                                        .paymentAmount(new BigDecimal("556.00")).build()
+                                ).creationInstant(Instant.now())
+                                .bitcoinAddress("asdjkasdjkasdkj").build()
+                ).state(BodyState.RECEIVED)
+                .barcode(UUID.randomUUID().toString())
+                .build();
+    }
 
     @Test
     void savesAndLoadsBody() {
@@ -268,5 +286,58 @@ public class RepositoryTests {
         assertThat(loadedSubTask.getParent().getTaskId()).isEqualByComparingTo(task.getTaskId());
 
         assertThat(loadedSubTask.getScheduleEntry().getParent()).isNotNull();
+    }
+
+    @Test
+    void shouldFindTaskInBetween() {
+        var pigsty = Pigsty.builder()
+                .pigstyNumber(123)
+                .pigAmount(30).build();
+        pigstyRepository.save(pigsty);
+
+        var employee = Employee.builder()
+                .name("vasya")
+                .employeeRole(EmployeeRole.PIG_MASTER)
+                .build();
+        employeeRepository.save(employee);
+
+        var entry = ScheduleEntry.builder()
+                .timeStart(testHelper.getDayAt(3, 12, 2020))
+                .timeEnd(testHelper.getDayAt(5, 12, 2020))
+                .build();
+
+        var body = createBody();
+        bodyRepository.save(body);
+
+        var task = Task.builder()
+                .taskType(TaskType.FEED)
+                .isComplete(false)
+                .employee(employee)
+                .pigsty(pigsty)
+                .body(body)
+                .scheduleEntry(entry).build();
+
+        taskRepository.save(task);
+
+        assertThat(taskRepository.existsTaskByTimeAndPigsty(
+                testHelper.getDayAt(4, 12, 2020),
+                testHelper.getDayAt(6, 12, 2020),
+                pigsty.getPigstyId())
+        ).isTrue();
+        assertThat(taskRepository.existsTaskByTimeAndPigsty(
+                testHelper.getDayAt(2, 12, 2020),
+                testHelper.getDayAt(4, 12, 2020),
+                pigsty.getPigstyId()
+        )).isTrue();
+        assertThat(taskRepository.existsTaskByTimeAndPigsty(
+                testHelper.getDayAt(1, 12, 2020),
+                testHelper.getDayAt(2, 12, 2020),
+                pigsty.getPigstyId()
+        )).isFalse();
+        assertThat(taskRepository.existsTaskByTimeAndPigsty(
+                testHelper.getDayAt(7, 12, 2020),
+                testHelper.getDayAt(8, 12, 2020),
+                pigsty.getPigstyId()
+        )).isFalse();
     }
 }

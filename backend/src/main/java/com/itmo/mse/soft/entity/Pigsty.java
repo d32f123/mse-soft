@@ -30,7 +30,7 @@ public class Pigsty {
     @Column(nullable = false)
     int pigstyNumber;
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     Task lastFedTask;
 
 }
