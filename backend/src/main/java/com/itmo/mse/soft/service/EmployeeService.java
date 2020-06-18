@@ -3,6 +3,8 @@ package com.itmo.mse.soft.service;
 import com.itmo.mse.soft.entity.Employee;
 import com.itmo.mse.soft.entity.EmployeeRole;
 import com.itmo.mse.soft.repository.EmployeeRepository;
+import com.itmo.mse.soft.task.Task;
+import com.itmo.mse.soft.task.TaskManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ public class EmployeeService extends EntityService<Employee> {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+    @Autowired
+    private TaskManager taskManager;
 
     @Override
     protected CrudRepository<Employee, UUID> getEntityRepository() {
@@ -25,5 +29,8 @@ public class EmployeeService extends EntityService<Employee> {
         return employeeRepository.findAllByEmployeeRole(employeeRole);
     }
 
+    public List<Task> getCurrentDailyTasks(Employee employee) {
+        return taskManager.getDailyTasks(employee.getEmployeeId());
+    }
 
 }

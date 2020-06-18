@@ -16,8 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.Instant;
+import java.time.*;
 import java.util.*;
 
 @Service
@@ -41,6 +40,7 @@ public class TaskManager {
     private final Map<SubTaskType, Duration> subTaskDurationMap = new HashMap<>();
     private final Map<TaskType, List<SubTaskType>> taskToSubTaskMap = new HashMap<>();
     private final Map<TaskType, EmployeeRole> taskToRoleMap = new HashMap<>();
+    // TODO: Transition map
 
     public TaskManager() {
         // Pickup: PICKUP_FROM_CUSTOMER (30) + PRINT_BARCODE(15) + PUT_IN_FRIDGE(15) = 1 HOUR
@@ -181,19 +181,20 @@ public class TaskManager {
         var role = taskToRoleMap.get(taskType);
         var employeeMap = getEmployeeMapByRole(role);
 
-        var eventQueue = buildEventQueue(start, Instant.MAX, taskType);
+        var eventQueue = buildEventQueue(start,
+                LocalDateTime.of(2070, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+                taskType);
         var duration = taskDurationMap.get(taskType);
 
         var foundStart = start.plus(Duration.ZERO);
         Set<UUID> possibleEmployees = new HashSet<>(employeeMap.keySet());
-        Employee chosenEmployee = null;
+        Employee chosenEmployee;
         for (var instant : eventQueue) {
             if (instant.instant.isBefore(start)) {
                 possibleEmployees.remove(instant.currentEmployee);
                 continue;
             }
             if (foundStart.plus(duration).isBefore(instant.instant) && !possibleEmployees.isEmpty()) {
-                chosenEmployee = employeeMap.get(possibleEmployees.iterator().next());
                 break;
             }
             if (instant.newTask) {
@@ -205,7 +206,8 @@ public class TaskManager {
                 foundStart = instant.instant;
             }
         }
-        assert chosenEmployee != null;
+        assert possibleEmployees.size() != 0;
+        chosenEmployee = employeeMap.get(possibleEmployees.iterator().next());
 
         return buildTask(foundStart, taskType, chosenEmployee);
     }
@@ -250,6 +252,17 @@ public class TaskManager {
 
         task.setPigsty(pigsty);
         return taskRepository.save(task);
+    }
+
+    public List<Task> getDailyTasks(UUID employeeId) {
+        return getDailyTasks(employeeId, LocalDate.now());
+    }
+
+    public List<Task> getDailyTasks(UUID employeeId, LocalDate day) {
+        Instant dayInstant = day.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Duration nextDay = Duration.ofDays(1);
+
+        return taskRepository.findIntersectionsByEmployeeIdAndTime(employeeId, dayInstant, dayInstant.plus(nextDay));
     }
 
     public Task completeTask(UUID taskId) {

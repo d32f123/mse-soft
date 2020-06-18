@@ -9,16 +9,16 @@ import com.itmo.mse.soft.order.Payment;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.UUID;
 
 @Service
 public class TestHelper {
 
     public Body createBody() {
+        return createBody(BodyState.IN_GROOMING);
+    }
+    public Body createBody(BodyState state) {
         return Body.builder()
                 .payment(
                         Payment.builder()
@@ -29,7 +29,7 @@ public class TestHelper {
                                 ).bitcoinAddress(UUID.randomUUID().toString())
                                 .creationInstant(Instant.now()).build()
                 ).barcode("askdjajskdajksldjaksdjk")
-                .state(BodyState.IN_GROOMING).build();
+                .state(state).build();
     }
 
     public Employee createEmployee() {
@@ -39,7 +39,8 @@ public class TestHelper {
     }
 
     public Instant getTimeAt(int hours, int minutes) {
-        return LocalDateTime.of(2020, 12, 5, hours, minutes).toInstant(ZoneOffset.UTC);
+
+        return LocalDateTime.of(LocalDate.now(), LocalTime.of(hours, minutes)).toInstant(ZoneOffset.UTC);
     }
 
     public Instant getDayAt(int day, int month, int year) {

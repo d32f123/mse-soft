@@ -33,4 +33,10 @@ public interface TaskRepository extends CrudRepository<Task, UUID> {
             ":from between scheduleEntry.timeStart and scheduleEntry.timeEnd or " +
             "scheduleEntry.timeStart between :from and :to)")
     boolean existIntersectionsByEmployeeRoleAndTime(EmployeeRole employeeRole, Instant from, Instant to);
+
+    @Query("from Task where employee.employeeId = :employeeId and " +
+            "(:to between scheduleEntry.timeStart and scheduleEntry.timeEnd or " +
+            ":from between scheduleEntry.timeStart and scheduleEntry.timeEnd or " +
+            "scheduleEntry.timeStart between :from and :to)")
+    List<Task> findIntersectionsByEmployeeIdAndTime(UUID employeeId, Instant from, Instant to);
 }

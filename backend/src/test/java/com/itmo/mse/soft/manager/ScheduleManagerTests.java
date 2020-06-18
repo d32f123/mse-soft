@@ -47,7 +47,7 @@ public class ScheduleManagerTests {
         assertThat(scheduleManager.getIntersections(
                 testHelper.getTimeAt(12, 40),
                 testHelper.getTimeAt(16, 50)
-        )).isEmpty();
+        )).isNotEmpty();
     }
 
 }
