@@ -1,5 +1,6 @@
 package com.itmo.mse.soft.task;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.itmo.mse.soft.schedule.ScheduleEntry;
 import lombok.*;
 import org.hibernate.annotations.Type;
@@ -22,6 +23,7 @@ public class SubTask {
     private UUID subTaskId;
 
     @ManyToOne(optional = false, cascade = CascadeType.MERGE)
+    @JsonIgnore
     private Task parent;
 
     @Column

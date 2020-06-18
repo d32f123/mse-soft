@@ -15,6 +15,10 @@ public class ScheduleManager {
     @Autowired
     private ScheduleEntryRepository scheduleEntryRepository;
 
+    public boolean existIntersections(Instant from, Instant to) {
+        return scheduleEntryRepository.existAnyIntersecting(from, to);
+    }
+
     public List<ScheduleEntry> getIntersections(Instant from, Instant to) {
         return scheduleEntryRepository.findAllIntersecting(from, to);
     }

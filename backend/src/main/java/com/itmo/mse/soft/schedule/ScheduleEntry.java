@@ -1,5 +1,6 @@
 package com.itmo.mse.soft.schedule;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Type;
 
@@ -29,9 +30,11 @@ public class ScheduleEntry{
     private Instant timeEnd;
 
     @ManyToOne(cascade = CascadeType.MERGE)
+    @JsonIgnore
     private ScheduleEntry parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<ScheduleEntry> subEntries;
 
 }
