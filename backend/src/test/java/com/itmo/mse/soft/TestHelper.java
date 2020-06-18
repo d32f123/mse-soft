@@ -34,7 +34,7 @@ public class TestHelper {
 
     public Employee createEmployee() {
         return Employee.builder()
-                .name("Vasya")
+                .name(UUID.randomUUID().toString())
                 .employeeRole(EmployeeRole.GROOMER).build();
     }
 
