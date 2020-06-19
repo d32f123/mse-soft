@@ -17,7 +17,13 @@
                     signInError()
                 } else {
                     console.log("Token: " + response);
-                    redirectToGroomerPage(response);
+
+                    let role = getRole(response);
+                    if (role === "GROOMER") {
+                        redirectToGroomerPage(response);
+                    } else {
+                        // redirectToPigMasterPage(response);
+                    }
                 }
             }
 
@@ -48,7 +54,7 @@
                         <label for="username">Имя пользователя</label>
                     </div>
                     <div class="col-2">
-                        <input type="text" class="form-control" id="username" name="password" value="someguy" required>
+                        <input type="text" class="form-control" id="username" name="password" value="Oleg" required>
                     </div>
                 </div>
                 <div class="form-row justify-content-center mb-2">

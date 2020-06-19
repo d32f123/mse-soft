@@ -28,6 +28,19 @@ function getTasks(token, success, error) {
     });
 }
 
+function getTasksSync(token, success, error) {
+    console.log("getTasks() start");
+    $.ajax({
+        async: false,
+        type: "GET",
+        url: dailyTasksUrl,
+        success: success,
+        error: error,
+        dataType: "json",
+        headers: {Token: token}
+    });
+}
+
 function redirectToGroomerPage(token) {
     console.log("setUpGroomerPage(" + token + ") start");
 
@@ -204,4 +217,19 @@ function completeTask() {
     });
 
     console.log("completeTask() finish");
+}
+
+function getRole(token) {
+    console.log("getRole() start");
+    getRole.role = null;
+
+    getTasksSync(token, function (response) {
+        console.log(response);
+        if (response.length > 0) {
+            getRole.role = response[0]['employee']['employeeRole'];
+        }
+    }, null);
+
+    console.log("getRole() -> " + getRole.role);
+    return getRole.role;
 }
