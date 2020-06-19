@@ -97,6 +97,14 @@ function setUpTaskPage(token, taskId) {
             }
         }
 
+        // show task completing
+        document.querySelector("h1").innerText = curTask['taskType'];
+        if (curTask["complete"]) {
+            let title = document.getElementById("bodyTitle").setAttribute(
+                "class", "alert alert-success"
+            );
+        }
+
         // show task info
         document.getElementById("status").innerText = curTask['body']["state"];
         document.getElementById("barcode").innerText = curTask['body']["barcode"];
