@@ -1,5 +1,7 @@
 package com.itmo.mse.soft.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.itmo.mse.soft.task.Task;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +33,7 @@ public class Pigsty {
     int pigstyNumber;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @JsonIgnore
     Task lastFedTask;
 
 }

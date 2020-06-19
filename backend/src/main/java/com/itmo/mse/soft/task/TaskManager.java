@@ -297,6 +297,13 @@ public class TaskManager {
         task.setComplete(true);
         task.getSubTasks().forEach(subTask -> subTask.setComplete(true));
         taskRepository.save(task);
+
+        if (task.getTaskType().isFeedingTask) {
+            log.debug("Task '{}' marked at pigsty '{}'", task.getTaskId(), task.getPigsty().getPigstyId());
+            pigstyService.feedPigsty(task);
+        }
+
+
         var nextTaskType = taskTransitionMap.get(task.getTaskType());
         if (nextTaskType == null) {
             log.debug("Task '{}' is complete and no further tasks are required", taskId);
@@ -329,6 +336,11 @@ public class TaskManager {
         subTask.setComplete(true);
         if (task.getSubTasks().stream().allMatch(SubTask::isComplete)) {
             task.setComplete(true);
+
+            if (task.getTaskType().isFeedingTask) {
+                pigstyService.feedPigsty(task);
+            }
+
             var newTaskType = taskTransitionMap.get(task.getTaskType());
             if (newTaskType == null) {
                 log.debug("SubTask '{}' complete, Task '{}' complete. No further tasks",
