@@ -120,12 +120,20 @@ function createPigMasterTable(token) {
             let timeEnd = document.createElement("th");
             timeEnd.innerText = task["scheduleEntry"]["timeEnd"];
 
+            let pigstyNumber = document.createElement("th");
             let pigAmount = document.createElement("th");
             let lastFedTask = document.createElement("th");
+
+            if (task['pigsty']) {
+                pigstyNumber.innerText = task['pigsty']['pigstyNumber'];
+                pigAmount.innerText = task['pigsty']['pigAmount'];
+                lastFedTask.innerText = task['pigsty']['lastFedTask'];
+            }
 
             tr.appendChild(type);
             tr.appendChild(timeStart);
             tr.appendChild(timeEnd);
+            tr.appendChild(pigstyNumber);
             tr.appendChild(pigAmount);
             tr.appendChild(lastFedTask);
 
