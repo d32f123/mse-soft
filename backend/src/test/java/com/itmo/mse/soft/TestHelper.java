@@ -24,7 +24,7 @@ public class TestHelper {
                         Payment.builder()
                                 .order(
                                         Order.builder()
-                                        .paymentInstant(Instant.now())
+                                        .pickupInstant(Instant.now())
                                         .paymentAmount(new BigDecimal("132.50")).build()
                                 ).bitcoinAddress(UUID.randomUUID().toString())
                                 .creationInstant(Instant.now()).build()

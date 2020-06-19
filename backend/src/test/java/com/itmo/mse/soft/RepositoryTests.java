@@ -49,7 +49,7 @@ public class RepositoryTests {
                         Payment.builder()
                                 .order(
                                         Order.builder()
-                                        .paymentInstant(Instant.now())
+                                        .pickupInstant(Instant.now())
                                         .paymentAmount(new BigDecimal("556.00")).build()
                                 ).creationInstant(Instant.now())
                                 .bitcoinAddress("asdjkasdjkasdkj").build()
@@ -62,7 +62,7 @@ public class RepositoryTests {
     void savesAndLoadsBody() {
         var order = Order.builder()
                 .paymentAmount(new BigDecimal("123.5"))
-                .paymentInstant(Instant.now())
+                .pickupInstant(Instant.now())
                 .build();
 
         var payment = Payment.builder()
@@ -110,7 +110,7 @@ public class RepositoryTests {
     void savesAndLoadsOrder() {
         Order order = Order.builder()
                 .paymentAmount(new BigDecimal("123.5"))
-                .paymentInstant(Instant.now())
+                .pickupInstant(Instant.now())
                 .build();
 
         orderRepository.save(order);
@@ -124,7 +124,7 @@ public class RepositoryTests {
     void savesAndLoadsPayment() {
         Order order = Order.builder()
                 .paymentAmount(new BigDecimal("123.5"))
-                .paymentInstant(Instant.now())
+                .pickupInstant(Instant.now())
                 .build();
 
         Payment payment = Payment.builder()
@@ -169,7 +169,7 @@ public class RepositoryTests {
                         .creationInstant(Instant.now())
                         .bitcoinAddress("asdf")
                         .order(Order.builder()
-                            .paymentInstant(Instant.now())
+                            .pickupInstant(Instant.now())
                             .paymentAmount(new BigDecimal("135.50"))
                             .build())
                         .build())

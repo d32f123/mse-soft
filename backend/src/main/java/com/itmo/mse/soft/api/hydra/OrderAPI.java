@@ -7,10 +7,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -20,19 +17,30 @@ public class OrderAPI {
     public OrderAPI() {
         this.orderQueue.add(Order.builder()
             .paymentAmount(new BigDecimal("5556.00"))
-            .paymentInstant(Instant.now()).build());
+            .pickupInstant(Instant.now()).build());
         this.orderQueue.add(Order.builder()
-        .paymentInstant(Instant.now().plus(Duration.ofMinutes(5)))
+        .pickupInstant(Instant.now().plus(Duration.ofMinutes(5)))
         .paymentAmount(new BigDecimal("3333.00")).build());
     }
 
     public List<Order> receiveNewOrders() {
-        return List.of(Objects.requireNonNull(orderQueue.poll()));
+        if (orderQueue.isEmpty()) {
+            return Collections.emptyList();
+        }
+        var ret = List.copyOf(orderQueue);
+        orderQueue.clear();
+        return ret;
     }
 
-    public void confirmOrder(Order order, String bitcoinAddress, String bodyStateUrl) {
+    public void confirmOrder(UUID orderId, String bitcoinAddress, String bodyStateUrl) {
+        log.info("Order '{}' is confirmed: '{}', '{}'", orderId, bitcoinAddress, bodyStateUrl);
+    }
+
+    public void cancelOrder(UUID orderId) {
+        log.info("Order '{}' is canceled", orderId);
     }
 
     public void setTimeSlotInfo(List<TimeSlotInfo> timeSlotInfos) {
+        log.info("Time slot info set: '{}'", timeSlotInfos);
     }
 }

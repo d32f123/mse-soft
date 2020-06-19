@@ -29,6 +29,6 @@ public class Order {
     private BigDecimal paymentAmount;
 
     @Column(nullable = false)
-    private Instant paymentInstant;
+    private Instant pickupInstant;
 
 }

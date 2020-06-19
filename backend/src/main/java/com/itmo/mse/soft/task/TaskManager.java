@@ -127,8 +127,12 @@ public class TaskManager {
     private Task buildTaskAt(Instant start, TaskType taskType) {
         var duration = taskDurationMap.get(taskType);
         var role = taskToRoleMap.get(taskType);
-        var eventQueue = buildEventQueue(start, start.plus(duration), taskType);
         var employeeMap = getEmployeeMapByRole(role);
+        if (employeeMap.isEmpty()) {
+            log.warn("No employees of role '{}', cannot schedule task of type '{}'", role, taskType);
+            return null;
+        }
+        var eventQueue = buildEventQueue(start, start.plus(duration), role);
 
         var availableEmployees = new HashSet<>(employeeMap.keySet());
         for (var instant: eventQueue) {
@@ -140,7 +144,9 @@ public class TaskManager {
             }
             if (instant.newTask) {
                 availableEmployees.remove(instant.currentEmployee);
-                continue;
+            }
+            if (availableEmployees.isEmpty()) {
+                return null;
             }
             availableEmployees.add(instant.currentEmployee);
         }
@@ -155,8 +161,7 @@ public class TaskManager {
         public boolean newTask;
     }
 
-    private PriorityQueue<InstantWithMeta> buildEventQueue(Instant start, Instant to, TaskType taskType) {
-        var employeeRole = taskToRoleMap.get(taskType);
+    private PriorityQueue<InstantWithMeta> buildEventQueue(Instant start, Instant to, EmployeeRole employeeRole) {
         var eventQueue = new PriorityQueue<InstantWithMeta>(Comparator.comparing(x -> x.instant));
         taskRepository.findIntersectionsByEmployeeRoleAndTime(employeeRole, start, to)
                 .forEach(task -> {
@@ -182,10 +187,15 @@ public class TaskManager {
     private Task buildTaskSomewhere(Instant start, TaskType taskType) {
         var role = taskToRoleMap.get(taskType);
         var employeeMap = getEmployeeMapByRole(role);
+        if (employeeMap.isEmpty()) {
+            log.warn("No employees of role '{}', cannot schedule task '{}'", role, taskType);
+            return null;
+        }
 
-        var eventQueue = buildEventQueue(start,
+        var eventQueue = buildEventQueue(
+                start,
                 LocalDateTime.of(2070, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
-                taskType);
+                role);
         var duration = taskDurationMap.get(taskType);
 
         var foundStart = start.plus(Duration.ZERO);
@@ -230,6 +240,9 @@ public class TaskManager {
     }
     public Task scheduleTask(TaskType taskType, Body body, Instant searchFrom) {
         var task = buildTaskSomewhere(searchFrom, taskType);
+        if (task == null) {
+            return null;
+        }
 
         task.setBody(body);
         return taskRepository.save(task);
@@ -238,7 +251,7 @@ public class TaskManager {
     public Task scheduleFeedingTaskAt(Instant start, Pigsty pigsty) {
         var task = buildTaskAt(start, TaskType.REGULAR_FEED);
         if (task == null) {
-            return task;
+            return null;
         }
 
         task.setPigsty(pigsty);
@@ -251,6 +264,9 @@ public class TaskManager {
 
     public Task scheduleFeedingTask(Pigsty pigsty, Instant start) {
         var task = buildTaskSomewhere(start, TaskType.REGULAR_FEED);
+        if (task == null) {
+            return null;
+        }
 
         task.setPigsty(pigsty);
         return taskRepository.save(task);
@@ -288,7 +304,11 @@ public class TaskManager {
 
         assert task.getBody() != null;
         var scheduledTask = this.scheduleTask(nextTaskType, task.getBody());
-        log.debug("Task '{}' is complete, scheduled task '{}'", taskId, scheduledTask.getTaskId());
+        log.debug("Task '{}' is complete", taskId);
+        if (scheduledTask != null) {
+            log.debug("Scheduled task '{}' for employee '{}'", scheduledTask.getTaskId(),
+                    scheduledTask.getEmployee().getName());
+        }
         return task;
     }
 

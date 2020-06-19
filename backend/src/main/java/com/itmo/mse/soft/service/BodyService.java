@@ -3,8 +3,11 @@ package com.itmo.mse.soft.service;
 import com.itmo.mse.soft.entity.Body;
 import com.itmo.mse.soft.entity.BodyState;
 import com.itmo.mse.soft.entity.EmployeeRole;
+import com.itmo.mse.soft.order.Order;
 import com.itmo.mse.soft.order.Payment;
 import com.itmo.mse.soft.repository.BodyRepository;
+import com.itmo.mse.soft.task.TaskManager;
+import com.itmo.mse.soft.task.TaskType;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +16,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,6 +28,9 @@ public class BodyService extends EntityService<Body> {
     protected CrudRepository<Body, UUID> getEntityRepository() {
         return entityRepository;
     }
+
+    @Autowired
+    private TaskManager taskManager;
 
     @Data
     @Builder
@@ -75,6 +80,25 @@ public class BodyService extends EntityService<Body> {
         );
     }
 
+    public Body createBody(Payment payment) {
+        var body = Body.builder()
+                .payment(payment)
+                .state(BodyState.AWAITING_RECEIVAL)
+                .barcode(issueBarcode())
+                .build();
+
+        this.entityRepository.save(body);
+
+        var task = taskManager.scheduleTaskAt(payment.getOrder().getPickupInstant(), TaskType.PICKUP, body);
+        if (task != null) {
+            return body;
+        }
+
+        // Uncommit
+        this.entityRepository.delete(body);
+        return null;
+    }
+
     public Optional<Body> getBodyByBarcode(String barcode) {
         return entityRepository.findBodyByBarcode(barcode);
     }
@@ -115,4 +139,9 @@ public class BodyService extends EntityService<Body> {
         return this.save(body);
     }
 
+    public String issueBarcode() {
+        log.debug("Issuing barcode");
+
+        return UUID.randomUUID().toString();
+    }
 }
