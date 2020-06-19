@@ -1,6 +1,7 @@
 let host = "http://localhost:8080";
 let authUrl = host + "/api/v1/auth";
 let dailyTasksUrl = host + "/api/v1/employees/daily-tasks";
+let completeSubTaskUrl = host + "/api/v1/employees/complete-sub-task";
 
 let taskUrl = "task.html";
 
@@ -68,6 +69,16 @@ function createGroomerTable(token) {
     console.log("createGroomerTable() finish");
 }
 
+// task page
+function getTaskPageParams() {
+    let token = window.location.search.substr(1).split("&")[0].split("=")[1];
+    let taskId = window.location.search.substr(1).split("&")[1].split("=")[1];
+    console.log("token:\t" + token);
+    console.log("taskId:\t" + taskId);
+
+    return {token: token, taskId: taskId};
+}
+
 function setUpTaskPage(token, taskId) {
     console.log("loadTaskInfo(" + token + "," + taskId + ") start");
 
@@ -102,7 +113,7 @@ function setUpTaskPage(token, taskId) {
             input.setAttribute("type", "checkbox");
             input.setAttribute("class", "form-check-input");
             input.setAttribute("value", subTask["subTaskType"]);
-            input.setAttribute("id", subTask["subTaskType"]);
+            input.setAttribute("id", subTask["subTaskId"]);
             if (subTask['complete']) {
                 input.setAttribute("disabled", "disabled");
             }
@@ -120,4 +131,40 @@ function setUpTaskPage(token, taskId) {
     });
 
     console.log("loadTaskInfo() finish");
+}
+
+function completeSubTask(token, subTaskId) {
+    console.log("completeSubTask(" + token + ", " + subTaskId + ") start");
+
+    $.ajax({
+        type: "POST",
+        url: completeSubTaskUrl + "/" + subTaskId,
+        dataType: "json",
+        headers: {Token: token},
+        success: function (response) {
+            let input = document.getElementById(subTaskId);
+            input.setAttribute("disabled","disabled");
+
+            console.log("completeSubTask(" + token + ", " + subTaskId + ") finish");
+        },
+    });
+}
+
+function completeSubTasks() {
+    console.log("completeSubTasks() start");
+
+    let actions = document.getElementById("actions")
+    let params = getTaskPageParams();
+    let checkedSubTasks = null;
+
+    // get checked actions
+    for (let actionDiv of actions.querySelectorAll("div")) {
+        let input = actionDiv.querySelector("input");
+
+        if (input.checked) {
+            completeSubTask(params["token"], input.getAttribute("id"));
+        }
+    }
+
+    console.log("completeSubTasks() finish");
 }

@@ -11,12 +11,8 @@
     <script src="js/utils.js"></script>
     <script type="text/javascript">
         function windowOnLoad() {
-            let token = window.location.search.substr(1).split("&")[0].split("=")[1];
-            let taskId = window.location.search.substr(1).split("&")[1].split("=")[1];
-            console.log("token:\t" + token);
-            console.log("taskId:\t" + taskId);
-
-            setUpTaskPage(token, taskId);
+            let params = getTaskPageParams();
+            setUpTaskPage(params["token"], params["taskId"]);
         }
         window.onload = windowOnLoad;
     </script>
@@ -79,7 +75,7 @@
 <!--                        Поместить труп в холодильник-->
 <!--                    </label>-->
 <!--                </div>-->
-                <button type="submit" class="btn btn-outline-info">Выполнить действия</button>
+                <button type="button" class="btn btn-outline-info" onclick="completeSubTasks()">Выполнить действия</button>
             </div>
         </div>
     </div>
