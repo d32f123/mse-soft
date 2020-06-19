@@ -94,6 +94,48 @@ function createGroomerTable(token) {
     console.log("createGroomerTable() finish");
 }
 
+function createPigMasterTable(token) {
+    console.log("createPigMasterTable(" + token + ") start");
+
+    getTasks(token, function (tasks) {
+        console.log(tasks);
+
+        let tbody = document.getElementById("tbody");
+
+        for (let task of tasks) {
+            let tr = document.createElement("tr");
+            if (task.complete) {
+                tr.classList.add("_complete");
+            }
+
+            let type = document.createElement("th");
+            let a = document.createElement("a");
+            a.innerText = task["taskType"];
+            a.href = taskUrl + "?token=" + token + "&task=" + task['taskId'];
+            type.appendChild(a);
+
+            let timeStart = document.createElement("th");
+            timeStart.innerText = task["scheduleEntry"]["timeStart"];
+
+            let timeEnd = document.createElement("th");
+            timeEnd.innerText = task["scheduleEntry"]["timeEnd"];
+
+            let pigAmount = document.createElement("th");
+            let lastFedTask = document.createElement("th");
+
+            tr.appendChild(type);
+            tr.appendChild(timeStart);
+            tr.appendChild(timeEnd);
+            tr.appendChild(pigAmount);
+            tr.appendChild(lastFedTask);
+
+            tbody.appendChild(tr);
+        }
+    });
+
+    console.log("createPigMasterTable() finish");
+}
+
 // task page
 function getTaskPageParams() {
     let token = window.location.search.substr(1).split("&")[0].split("=")[1];
