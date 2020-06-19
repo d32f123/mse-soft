@@ -11,6 +11,7 @@ import com.itmo.mse.soft.schedule.ScheduleEntry;
 import com.itmo.mse.soft.schedule.ScheduleManager;
 import com.itmo.mse.soft.service.BodyService;
 import com.itmo.mse.soft.service.EmployeeService;
+import com.itmo.mse.soft.service.PigstyService;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,8 @@ public class TaskManager {
     TaskRepository taskRepository;
     @Autowired
     SubTaskRepository subTaskRepository;
+    @Autowired
+    PigstyService pigstyService;
 
     private final Map<TaskType, Duration> taskDurationMap = new HashMap<>();
     private final Map<SubTaskType, Duration> subTaskDurationMap = new HashMap<>();
@@ -92,7 +95,7 @@ public class TaskManager {
         taskTransitionMap.put(TaskType.REGULAR_FEED, null);
     }
 
-    private Task buildTask(Instant start, TaskType taskType, Employee employee) {
+    private Task buildTask(Instant start, TaskType taskType, Employee employee, Pigsty pigsty) {
         var duration = taskDurationMap.get(taskType);
         var subTaskTypes = taskToSubTaskMap.get(taskType);
         var task = Task.builder()
@@ -103,6 +106,7 @@ public class TaskManager {
                                 .timeEnd(start.plus(duration)).build()
                 ).isComplete(false)
                 .taskType(taskType)
+                .pigsty(pigsty)
                 .subTasks(new ArrayList<>()).build();
 
         var subOffset = Duration.ZERO;
@@ -132,57 +136,35 @@ public class TaskManager {
             log.warn("No employees of role '{}', cannot schedule task of type '{}'", role, taskType);
             return null;
         }
+        Map<UUID, Pigsty> pigstyMap = taskType.isFeedingTask ? getPigstyMap() : Collections.emptyMap();
+        if (taskType.isFeedingTask && pigstyMap.isEmpty()) {
+            log.warn("No pigsties found, cannot schedule task of type '{}'", taskType);
+        }
         var eventQueue = buildEventQueue(start, start.plus(duration), role);
 
         var availableEmployees = new HashSet<>(employeeMap.keySet());
+        Set<UUID> availablePigsties = taskType.isFeedingTask ? new HashSet<>(pigstyMap.keySet()) : Collections.emptySet();
         for (var instant: eventQueue) {
-            if (instant.instant.isAfter(start.plus(duration)) && employeeMap.isEmpty()) {
-                return null;
-            }
-            if (instant.instant.isAfter(start.plus(duration)) && !employeeMap.isEmpty()) {
-                return buildTask(start, taskType, employeeMap.get(availableEmployees.iterator().next()));
+            if (instant.instant.isAfter(start.plus(duration))) {
+                break;
             }
             if (instant.newTask) {
                 availableEmployees.remove(instant.currentEmployee);
+                if (instant.pigstyId != null && taskType.isFeedingTask) {
+                    availablePigsties.remove(instant.pigstyId);
+                }
             }
-            if (availableEmployees.isEmpty()) {
+            if (availableEmployees.isEmpty() || taskType.isFeedingTask && availablePigsties.isEmpty()) {
                 return null;
             }
-            availableEmployees.add(instant.currentEmployee);
         }
-        assert !availableEmployees.isEmpty();
-        return buildTask(start, taskType, employeeMap.get(availableEmployees.iterator().next()));
+        if (availableEmployees.isEmpty() || taskType.isFeedingTask && availablePigsties.isEmpty()) {
+            return null;
+        }
+        return buildTask(start, taskType, employeeMap.get(availableEmployees.iterator().next()),
+                taskType.isFeedingTask ? pigstyMap.get(availablePigsties.iterator().next()) : null);
     }
 
-    @Builder
-    private static class InstantWithMeta {
-        public Instant instant;
-        public UUID currentEmployee;
-        public boolean newTask;
-    }
-
-    private PriorityQueue<InstantWithMeta> buildEventQueue(Instant start, Instant to, EmployeeRole employeeRole) {
-        var eventQueue = new PriorityQueue<InstantWithMeta>(Comparator.comparing(x -> x.instant));
-        taskRepository.findIntersectionsByEmployeeRoleAndTime(employeeRole, start, to)
-                .forEach(task -> {
-                    eventQueue.add(InstantWithMeta.builder()
-                            .instant(task.getScheduleEntry().getTimeStart())
-                            .currentEmployee(task.getEmployee().getEmployeeId())
-                            .newTask(true).build());
-                    eventQueue.add(InstantWithMeta.builder()
-                            .instant(task.getScheduleEntry().getTimeEnd())
-                            .currentEmployee(task.getEmployee().getEmployeeId())
-                            .newTask(false).build());
-                });
-        return eventQueue;
-    }
-
-    private Map<UUID, Employee> getEmployeeMapByRole(EmployeeRole employeeRole) {
-        var employeeMap = new HashMap<UUID, Employee>();
-        employeeService.getEmployeesByRole(employeeRole)
-                .forEach(employee -> employeeMap.put(employee.getEmployeeId(), employee));
-        return employeeMap;
-    }
 
     private Task buildTaskSomewhere(Instant start, TaskType taskType) {
         var role = taskToRoleMap.get(taskType);
@@ -190,6 +172,11 @@ public class TaskManager {
         if (employeeMap.isEmpty()) {
             log.warn("No employees of role '{}', cannot schedule task '{}'", role, taskType);
             return null;
+        }
+
+        Map<UUID, Pigsty> pigstyMap = taskType.isFeedingTask ? getPigstyMap() : Collections.emptyMap();
+        if (taskType.isFeedingTask && pigstyMap.isEmpty()) {
+            log.warn("No pigsties found, cannot schedule task of type '{}'", taskType);
         }
 
         var eventQueue = buildEventQueue(
@@ -200,28 +187,42 @@ public class TaskManager {
 
         var foundStart = start.plus(Duration.ZERO);
         Set<UUID> possibleEmployees = new HashSet<>(employeeMap.keySet());
-        Employee chosenEmployee;
+        Set<UUID> possiblePigsties = taskType.isFeedingTask ? new HashSet<>(pigstyMap.keySet()) : Collections.emptySet();
         for (var instant : eventQueue) {
             if (instant.instant.isBefore(start)) {
                 possibleEmployees.remove(instant.currentEmployee);
+                if (instant.pigstyId != null && taskType.isFeedingTask) {
+                    possiblePigsties.remove(instant.pigstyId);
+                }
                 continue;
             }
-            if (foundStart.plus(duration).isBefore(instant.instant) && !possibleEmployees.isEmpty()) {
+            if (foundStart.plus(duration).isBefore(instant.instant) && !possibleEmployees.isEmpty()
+                 && (!taskType.isFeedingTask || !possiblePigsties.isEmpty())) {
                 break;
             }
             if (instant.newTask) {
                 possibleEmployees.remove(instant.currentEmployee);
+                if (instant.pigstyId != null && taskType.isFeedingTask) {
+                    possiblePigsties.remove(instant.pigstyId);
+                }
                 continue;
             }
-            possibleEmployees.add(instant.currentEmployee);
-            if (possibleEmployees.size() == 1) {
+            if (instant.currentEmployee != null) {
+                possibleEmployees.add(instant.currentEmployee);
+            }
+            if (instant.pigstyId != null && taskType.isFeedingTask) {
+                possiblePigsties.add(instant.pigstyId);
+            }
+            if (possibleEmployees.size() == 1 || possiblePigsties.size() == 1) {
                 foundStart = instant.instant;
             }
         }
         assert possibleEmployees.size() != 0;
-        chosenEmployee = employeeMap.get(possibleEmployees.iterator().next());
+        assert !taskType.isFeedingTask || !possiblePigsties.isEmpty();
+        var chosenEmployee = employeeMap.get(possibleEmployees.iterator().next());
+        var chosenPigsty = taskType.isFeedingTask ? pigstyMap.get(possiblePigsties.iterator().next()) : null;
 
-        return buildTask(foundStart, taskType, chosenEmployee);
+        return buildTask(foundStart, taskType, chosenEmployee, chosenPigsty);
     }
 
     public Task scheduleTaskAt(Instant start, TaskType taskType, Body body) {
@@ -343,6 +344,52 @@ public class TaskManager {
         }
 
         return taskRepository.save(task);
+    }
+    @Builder
+    private static class InstantWithMeta {
+        public Instant instant;
+        public UUID currentEmployee;
+        public boolean newTask;
+        public UUID pigstyId;
+    }
+
+    private PriorityQueue<InstantWithMeta> buildEventQueue(Instant start, Instant to, EmployeeRole employeeRole) {
+        var eventQueue = new PriorityQueue<InstantWithMeta>(Comparator.comparing(x -> x.instant));
+        taskRepository.findIntersectionsByEmployeeRoleAndTime(employeeRole, start, to)
+                .forEach(task -> {
+                    eventQueue.add(InstantWithMeta.builder()
+                            .instant(task.getScheduleEntry().getTimeStart())
+                            .currentEmployee(task.getEmployee().getEmployeeId())
+                            .pigstyId(task.getPigsty() != null ? task.getPigsty().getPigstyId() : null)
+                            .newTask(true).build());
+                    eventQueue.add(InstantWithMeta.builder()
+                            .instant(task.getScheduleEntry().getTimeEnd())
+                            .currentEmployee(task.getEmployee().getEmployeeId())
+                            .pigstyId(null)
+                            .newTask(false).build());
+                    if (task.getPigsty() != null) {
+                        eventQueue.add(InstantWithMeta.builder()
+                                .instant(task.getScheduleEntry().getTimeEnd().plus(Duration.ofDays(5)))
+                                .pigstyId(task.getPigsty().getPigstyId())
+                                .newTask(false).build());
+                    }
+                });
+        return eventQueue;
+    }
+
+    private Map<UUID, Employee> getEmployeeMapByRole(EmployeeRole employeeRole) {
+        var employeeMap = new HashMap<UUID, Employee>();
+        employeeService.getEmployeesByRole(employeeRole)
+                .forEach(employee -> employeeMap.put(employee.getEmployeeId(), employee));
+        return employeeMap;
+    }
+
+    private Map<UUID, Pigsty> getPigstyMap() {
+        var pigstyMap = new HashMap<UUID, Pigsty>();
+        pigstyService.getAll().forEach(
+                pigsty -> pigstyMap.put(pigsty.getPigstyId(), pigsty)
+        );
+        return pigstyMap;
     }
 
 }
