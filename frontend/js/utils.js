@@ -44,6 +44,9 @@ function createGroomerTable(token) {
 
         for (let task of tasks) {
             let tr = document.createElement("tr");
+            if (task.complete) {
+                tr.classList.add("_complete");
+            }
 
             let type = document.createElement("th");
             let a = document.createElement("a");
