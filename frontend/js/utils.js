@@ -42,11 +42,19 @@ function getTasksSync(token, success, error) {
 }
 
 function redirectToGroomerPage(token) {
-    console.log("setUpGroomerPage(" + token + ") start");
+    console.log("redirectToGroomerPage(" + token + ") start");
 
     window.open("groomer.html?token="+token,"_self");
 
-    console.log("setUpGroomerPage finish");
+    console.log("redirectToGroomerPage finish");
+}
+
+function redirectToPigMasterPage(token) {
+    console.log("redirectToPigMasterPage(" + token + ") start");
+
+    window.open("pig_master.html?token=" + token, "_self");
+
+    console.log("redirectToPigMasterPage finish");
 }
 
 function createGroomerTable(token) {
