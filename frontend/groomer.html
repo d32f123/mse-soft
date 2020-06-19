@@ -8,6 +8,7 @@
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 
+        <script src="js/utils.js"></script>
         <script type="text/javascript">
             function setDateAndTime() {
                 let today =  new Date();
@@ -20,13 +21,8 @@
                 document.getElementById("today").innerHTML = "Сегодня " + d + "." + m + "." + y + ". Время " + H + ":" + M;
             }
 
-            function loadTable() {
-
-            }
-
             function windowOnLoad() {
                 setDateAndTime();
-                loadTable();
             }
             window.onload = windowOnLoad;
         </script>
