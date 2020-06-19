@@ -7,12 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/employees")
@@ -33,6 +31,40 @@ public class EmployeeController {
         }
 
         return ResponseEntity.ok(employeeService.getCurrentDailyTasks(employee));
+    }
+
+    @PostMapping("/complete-task/{taskId}")
+    public ResponseEntity<Task> completeTask(
+            @RequestHeader(name = "Token") String token,
+            @PathVariable("taskId") UUID taskId
+    ) {
+        var employee = authService.getEmployeeByToken(token);
+        if (employee == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        var task = employeeService.completeTask(taskId, employee);
+        if (task == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        return ResponseEntity.ok(task);
+    }
+
+    @PostMapping("/complete-sub-task/{subTaskId}")
+    public ResponseEntity<Task> completeSubTask(
+            @RequestHeader(name="Token") String token,
+            @PathVariable("subTaskId") UUID subTaskId
+    ) {
+        var employee = authService.getEmployeeByToken(token);
+        if (employee == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        var task = employeeService.completeSubTask(subTaskId, employee);
+        if (task == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        return ResponseEntity.ok(task);
     }
 
 }

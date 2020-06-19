@@ -40,7 +40,7 @@ public class TaskManager {
     private final Map<SubTaskType, Duration> subTaskDurationMap = new HashMap<>();
     private final Map<TaskType, List<SubTaskType>> taskToSubTaskMap = new HashMap<>();
     private final Map<TaskType, EmployeeRole> taskToRoleMap = new HashMap<>();
-    // TODO: Transition map
+    private final Map<TaskType, TaskType> taskTransitionMap = new HashMap<>();
 
     public TaskManager() {
         // Pickup: PICKUP_FROM_CUSTOMER (30) + PRINT_BARCODE(15) + PUT_IN_FRIDGE(15) = 1 HOUR
@@ -85,6 +85,11 @@ public class TaskManager {
         taskToRoleMap.put(TaskType.GROOM, EmployeeRole.GROOMER);
         taskToRoleMap.put(TaskType.FEED, EmployeeRole.PIG_MASTER);
         taskToRoleMap.put(TaskType.REGULAR_FEED, EmployeeRole.PIG_MASTER);
+
+        taskTransitionMap.put(TaskType.PICKUP, TaskType.GROOM);
+        taskTransitionMap.put(TaskType.GROOM, TaskType.FEED);
+        taskTransitionMap.put(TaskType.FEED, null);
+        taskTransitionMap.put(TaskType.REGULAR_FEED, null);
     }
 
     private Task buildTask(Instant start, TaskType taskType, Employee employee) {
@@ -95,8 +100,7 @@ public class TaskManager {
                 .scheduleEntry(
                         ScheduleEntry.builder()
                                 .timeStart(start)
-                                .timeEnd(start.plus(duration))
-                                .subEntries(new ArrayList<>()).build()
+                                .timeEnd(start.plus(duration)).build()
                 ).isComplete(false)
                 .taskType(taskType)
                 .subTasks(new ArrayList<>()).build();
@@ -111,10 +115,8 @@ public class TaskManager {
                     .scheduleEntry(
                             ScheduleEntry.builder()
                                     .timeStart(start.plus(subOffset))
-                                    .timeEnd(start.plus(subOffset).plus(subTaskDuration))
-                                    .parent(task.getScheduleEntry()).build()
+                                    .timeEnd(start.plus(subOffset).plus(subTaskDuration)).build()
                     ).build();
-            task.getScheduleEntry().getSubEntries().add(subTask.getScheduleEntry());
             task.getSubTasks().add(subTask);
             subOffset = subOffset.plus(subTaskDuration);
         }
@@ -265,16 +267,62 @@ public class TaskManager {
         return taskRepository.findIntersectionsByEmployeeIdAndTime(employeeId, dayInstant, dayInstant.plus(nextDay));
     }
 
-    public Task completeTask(UUID taskId) {
+    public Task completeTask(UUID taskId, UUID employeeId) {
         var task = taskRepository.findById(taskId).orElseThrow();
+        if (!task.getEmployee().getEmployeeId().equals(employeeId)) {
+            return null;
+        }
+        if (task.isComplete()) {
+            log.error("Task '{}' is already complete", taskId);
+            return task;
+        }
 
+        task.setComplete(true);
+        task.getSubTasks().forEach(subTask -> subTask.setComplete(true));
+        taskRepository.save(task);
+        var nextTaskType = taskTransitionMap.get(task.getTaskType());
+        if (nextTaskType == null) {
+            log.debug("Task '{}' is complete and no further tasks are required", taskId);
+            return task;
+        }
+
+        assert task.getBody() != null;
+        var scheduledTask = this.scheduleTask(nextTaskType, task.getBody());
+        log.debug("Task '{}' is complete, scheduled task '{}'", taskId, scheduledTask.getTaskId());
         return task;
     }
 
-    public Task completeSubTask(UUID subTaskId) {
+    public Task completeSubTask(UUID subTaskId, UUID employeeId) {
         var subTask = subTaskRepository.findById(subTaskId).orElseThrow();
+        var task = subTask.getParent();
 
-        return subTask.getParent();
+        if (!task.getEmployee().getEmployeeId().equals(employeeId)) {
+            return null;
+        }
+
+        if (subTask.isComplete()) {
+            log.error("SubTask '{}' is already complete", subTaskId);
+            return task;
+        }
+
+        subTask.setComplete(true);
+        if (task.getSubTasks().stream().allMatch(SubTask::isComplete)) {
+            task.setComplete(true);
+            var newTaskType = taskTransitionMap.get(task.getTaskType());
+            if (newTaskType == null) {
+                log.debug("SubTask '{}' complete, Task '{}' complete. No further tasks",
+                        subTaskId, task.getTaskId());
+            } else {
+                var scheduledTask = this.scheduleTask(newTaskType, task.getBody());
+                log.debug("SubTask '{}' complete, Task '{}' complete. Scheduled task: '{}'",
+                        subTaskId, task.getTaskId(), scheduledTask.getTaskId());
+            }
+        } else {
+            log.debug("SubTask '{}' complete, Task '{}' is not yet",
+                    subTaskId, task.getTaskId());
+        }
+
+        return taskRepository.save(task);
     }
 
 }

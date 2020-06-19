@@ -1,12 +1,10 @@
 package com.itmo.mse.soft.schedule;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -14,8 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@ToString(exclude = {"parent"})
-public class ScheduleEntry{
+public class ScheduleEntry {
 
     @Id
     @Column
@@ -28,13 +25,5 @@ public class ScheduleEntry{
 
     @Column(nullable = false)
     private Instant timeEnd;
-
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JsonIgnore
-    private ScheduleEntry parent;
-
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonIgnore
-    private List<ScheduleEntry> subEntries;
 
 }

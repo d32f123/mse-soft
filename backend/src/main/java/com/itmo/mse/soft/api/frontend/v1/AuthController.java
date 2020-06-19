@@ -4,6 +4,8 @@ package com.itmo.mse.soft.api.frontend.v1;
 import com.itmo.mse.soft.service.AuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,8 +20,12 @@ public class AuthController {
     private AuthService authService;
 
     @GetMapping
-    public String authenticate(@RequestParam("userName") String userName) {
-        return authService.authenticate(userName);
+    public ResponseEntity<String> authenticate(@RequestParam("userName") String userName) {
+        var token = authService.authenticate(userName);
+        if (token == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        return ResponseEntity.ok(token);
     }
 
 }

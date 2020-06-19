@@ -33,4 +33,12 @@ public class EmployeeService extends EntityService<Employee> {
         return taskManager.getDailyTasks(employee.getEmployeeId());
     }
 
+    public Task completeTask(UUID taskId, Employee employee) {
+        return taskManager.completeTask(taskId, employee.getEmployeeId());
+    }
+
+    public Task completeSubTask(UUID subTaskId, Employee employee) {
+        return taskManager.completeSubTask(subTaskId, employee.getEmployeeId());
+    }
+
 }
