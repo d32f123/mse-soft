@@ -18,13 +18,7 @@
         <script type="text/javascript">
             function setDateAndTime() {
                 let today =  new Date();
-                let y = today.getFullYear();
-                let m = today.getMonth() + 1;
-                let d = today.getDate();
-                let H = today.getHours();
-                let M = today.getMinutes();
-
-                document.getElementById("today").innerHTML = "Сегодня " + d + "." + m + "." + y + ". Время " + H + ":" + M;
+                document.getElementById("today").innerHTML = `Сегодня ${today.toLocaleString()}`;
             }
 
             function windowOnLoad() {
