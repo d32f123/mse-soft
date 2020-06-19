@@ -2,14 +2,12 @@ package com.itmo.mse.soft.service;
 
 import com.itmo.mse.soft.TableCleaner;
 import com.itmo.mse.soft.TestHelper;
-import com.itmo.mse.soft.entity.Body;
-import com.itmo.mse.soft.entity.BodyState;
-import com.itmo.mse.soft.entity.Employee;
-import com.itmo.mse.soft.entity.EmployeeRole;
+import com.itmo.mse.soft.entity.*;
 import com.itmo.mse.soft.order.Order;
 import com.itmo.mse.soft.order.Payment;
 import com.itmo.mse.soft.repository.BodyRepository;
 import com.itmo.mse.soft.repository.EmployeeRepository;
+import com.itmo.mse.soft.repository.PigstyRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,6 +33,9 @@ public class BodyServiceTests {
 
     @Autowired
     EmployeeRepository employeeRepository;
+
+    @Autowired
+    PigstyRepository pigstyRepository;
 
     @Autowired
     TableCleaner tableCleaner;
@@ -76,44 +77,23 @@ public class BodyServiceTests {
     }
 
     @Test
-    void shouldReturnValidTransition() {
-        assertThat(bodyService.getValidTransitions(EmployeeRole.GROOMER, BodyState.RECEIVED)).isNotEmpty();
-    }
-
-    @Test
-    void shouldReturnEmptySetForInvalidState() {
-        assertThat(bodyService.getValidTransitions(EmployeeRole.PIG_MASTER, BodyState.AWAITING_RECEIVAL)).isEmpty();
-    }
-
-    @Test
-    void shouldTransitionBody() {
-        var body = createBody();
-
-        bodyService.save(body);
-
-        bodyService.transitionBody(body, EmployeeRole.PIG_MASTER, BodyState.IN_FEEDING);
-        assertThat(body.getState()).isEqualByComparingTo(BodyState.IN_FEEDING);
-    }
-
-    @Test
-    void shouldNotTransitionBody() {
-        var body = createBody();
-        var initialState = body.getState();
-
-        bodyService.save(body);
-
-        bodyService.transitionBody(body, EmployeeRole.GROOMER, BodyState.IN_GROOMING);
-        assertThat(body.getState()).isEqualByComparingTo(initialState);
-    }
-
-    @Test
     void shouldNotCreateBodyWhenNoEmployeesAvailable() {
         tableCleaner.clearTables();
         var employee = Employee.builder()
                 .name("Vasyan")
                 .employeeRole(EmployeeRole.GROOMER)
                 .build();
+        var anotherEmployee = Employee.builder()
+                .name("groomer")
+                .employeeRole(EmployeeRole.PIG_MASTER)
+                .build();
         employeeRepository.save(employee);
+        employeeRepository.save(anotherEmployee);
+        var pigsty = Pigsty.builder()
+                .pigstyNumber(0)
+                .pigAmount(2)
+                .build();
+        pigstyRepository.save(pigsty);
 
         var payment = Payment.builder()
                 .order(

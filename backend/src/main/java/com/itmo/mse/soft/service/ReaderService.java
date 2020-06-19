@@ -5,7 +5,7 @@ import com.itmo.mse.soft.entity.Reader;
 import com.itmo.mse.soft.repository.ReaderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -22,7 +22,7 @@ public class ReaderService extends EntityService<Reader> {
     private FridgeService fridgeService;
 
     @Override
-    protected CrudRepository<Reader, UUID> getEntityRepository() {
+    protected JpaRepository<Reader, UUID> getEntityRepository() {
         return readerRepository;
     }
 

@@ -78,10 +78,10 @@ function createGroomerTable(token) {
             type.appendChild(a);
 
             let timeStart = document.createElement("th");
-            timeStart.innerText = task["scheduleEntry"]["timeStart"];
+            timeStart.innerText = getFormattedTime(task["scheduleEntry"]["timeStart"]);
 
             let timeEnd = document.createElement("th");
-            timeEnd.innerText = task["scheduleEntry"]["timeEnd"];
+            timeEnd.innerText = getFormattedTime(task["scheduleEntry"]["timeEnd"]);
 
             tr.appendChild(type);
             tr.appendChild(timeStart);
@@ -115,10 +115,10 @@ function createPigMasterTable(token) {
             type.appendChild(a);
 
             let timeStart = document.createElement("th");
-            timeStart.innerText = task["scheduleEntry"]["timeStart"];
+            timeStart.innerText = getFormattedTime(task["scheduleEntry"]["timeStart"]);
 
             let timeEnd = document.createElement("th");
-            timeEnd.innerText = task["scheduleEntry"]["timeEnd"];
+            timeEnd.innerText = getFormattedTime(task["scheduleEntry"]["timeEnd"]);
 
             let pigstyNumber = document.createElement("th");
             let pigAmount = document.createElement("th");
@@ -127,7 +127,7 @@ function createPigMasterTable(token) {
             if (task['pigsty']) {
                 pigstyNumber.innerText = task['pigsty']['pigstyNumber'];
                 pigAmount.innerText = task['pigsty']['pigAmount'];
-                lastFedTask.innerText = task['pigsty']['lastFedTask'];
+                lastFedTask.innerText = getFormattedDateTime(task['pigsty']['lastFeedTime']);
             }
 
             tr.appendChild(type);
@@ -148,13 +148,22 @@ function createPigMasterTable(token) {
 function getTaskPageParams() {
     let token = window.location.search.substr(1).split("&")[0].split("=")[1];
     let taskId = window.location.search.substr(1).split("&")[1].split("=")[1];
+    let dashboardUrl = document.referrer;
     console.log("token:\t" + token);
     console.log("taskId:\t" + taskId);
 
-    return {token: token, taskId: taskId};
+    return {token, taskId, dashboardUrl};
 }
 
-function setUpTaskPage(token, taskId) {
+function getFormattedTime(timeString) {
+    return new Date(timeString).toLocaleTimeString('ru-RU');
+}
+
+function getFormattedDateTime(dateTimeString) {
+    return new Date(dateTimeString).toLocaleString('ru-RU');
+}
+
+function setUpTaskPage(token, taskId, dashboardUrl) {
     console.log("loadTaskInfo(" + token + "," + taskId + ") start");
 
     getTasks(token, function (tasks) {
@@ -178,8 +187,9 @@ function setUpTaskPage(token, taskId) {
         // show task info
         document.getElementById("status").innerText = curTask['body']["state"];
         document.getElementById("barcode").innerText = curTask['body']["barcode"];
-        document.getElementById("planed_time").innerText = curTask["scheduleEntry"]["timeStart"];
-        document.getElementById("schedule").setAttribute("href", "groomer.html?token="+token);
+        document.getElementById("planed_time").innerText = getFormattedTime(curTask["scheduleEntry"]["timeStart"]);
+        const dashboard = new URL(dashboardUrl);
+        document.getElementById("schedule").setAttribute("href", `${dashboard.pathname}?token=${token}`);
 
         let actions = document.getElementById("actions")
 

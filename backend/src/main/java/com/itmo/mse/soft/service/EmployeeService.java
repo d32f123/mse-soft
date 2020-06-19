@@ -6,7 +6,7 @@ import com.itmo.mse.soft.repository.EmployeeRepository;
 import com.itmo.mse.soft.task.Task;
 import com.itmo.mse.soft.task.TaskManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public class EmployeeService extends EntityService<Employee> {
     private TaskManager taskManager;
 
     @Override
-    protected CrudRepository<Employee, UUID> getEntityRepository() {
+    protected JpaRepository<Employee, UUID> getEntityRepository() {
         return employeeRepository;
     }
 

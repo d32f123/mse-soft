@@ -44,11 +44,11 @@ public class SoftApplication {
             Pigsty.builder()
             .pigAmount(5)
             .pigstyNumber(1)
-            .build(),
-            Pigsty.builder()
-            .pigAmount(5)
-            .pigstyNumber(2)
             .build()
+//            Pigsty.builder()
+//            .pigAmount(5)
+//            .pigstyNumber(2)
+//            .build()
     );
 
     private final List<Reader> readers = List.of(

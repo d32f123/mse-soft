@@ -15,12 +15,6 @@ public class OrderAPI {
     Queue<Order> orderQueue = new LinkedList<>();
 
     public OrderAPI() {
-        this.orderQueue.add(Order.builder()
-            .paymentAmount(new BigDecimal("5556.00"))
-            .pickupInstant(Instant.now()).build());
-        this.orderQueue.add(Order.builder()
-        .pickupInstant(Instant.now().plus(Duration.ofMinutes(5)))
-        .paymentAmount(new BigDecimal("3333.00")).build());
     }
 
     public List<Order> receiveNewOrders() {

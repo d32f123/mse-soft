@@ -7,9 +7,10 @@ import com.itmo.mse.soft.task.Task;
 import com.itmo.mse.soft.task.TaskType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.UUID;
 
 @Slf4j
@@ -22,8 +23,12 @@ public class PigstyService extends EntityService<Pigsty> {
     private TaskRepository taskRepository;
 
     @Override
-    protected CrudRepository<Pigsty, UUID> getEntityRepository() {
+    protected JpaRepository<Pigsty, UUID> getEntityRepository() {
         return pigstyRepository;
+    }
+
+    public Duration getPigstyCoolDownDuration() {
+        return Duration.ofDays(7);
     }
 
     public Task reservePigsty(UUID pigstyId, UUID taskId) {

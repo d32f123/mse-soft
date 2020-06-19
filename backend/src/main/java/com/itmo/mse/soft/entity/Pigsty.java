@@ -1,6 +1,7 @@
 package com.itmo.mse.soft.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.itmo.mse.soft.task.Task;
 import lombok.AllArgsConstructor;
@@ -35,5 +36,10 @@ public class Pigsty {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JsonIgnore
     Task lastFedTask;
+
+    @JsonProperty("lastFeedTime")
+    public Instant getLastFeedTime() {
+        return lastFedTask == null ? null : lastFedTask.getScheduleEntry().getTimeEnd();
+    }
 
 }

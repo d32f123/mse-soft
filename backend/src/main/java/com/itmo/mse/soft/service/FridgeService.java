@@ -9,28 +9,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class FridgeService {
 
-
     @Autowired
     private BodyService bodyService;
 
     public Body enterFridge(Body body) {
-        var newState = bodyService.getValidTransitions(body.getState()).stream()
-                .filter(state -> state.isInFridge)
-                .findFirst().orElse(null);
-        if (newState == null) {
-            log.warn("Tried to move body '{}' in fridge, but no correct state found", body.getId());
-        }
         return body;
     }
 
     public Body closeFridge(Body body) {
         // TODO: Implement autocomplete of task so that body automatically transitions to new state
         return body;
-    }
-
-    public boolean isEntranceAllowed(Body body) {
-        return bodyService.getValidTransitions(body.getState()).stream()
-                .anyMatch(state -> state.isInFridge);
     }
 
 }
