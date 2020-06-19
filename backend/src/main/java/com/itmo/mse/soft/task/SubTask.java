@@ -29,7 +29,7 @@ public class SubTask {
     @Column
     private boolean isComplete;
 
-    @OneToOne(optional = false, cascade = CascadeType.MERGE)
+    @OneToOne(optional = false, cascade = CascadeType.ALL)
     private ScheduleEntry scheduleEntry;
 
     @Column(nullable = false)

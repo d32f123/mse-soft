@@ -15,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -101,17 +100,10 @@ public class RepositoryTests {
                 .timeStart(Instant.now())
                 .timeEnd(Instant.now()).build();
 
-        scheduleEntry.setSubEntries(IntStream.range(0, 2).mapToObj(i -> ScheduleEntry.builder()
-                .parent(scheduleEntry)
-                .timeStart(Instant.now())
-                .timeEnd(Instant.now())
-                .build()).collect(Collectors.toList()));
-
         scheduleEntryRepository.save(scheduleEntry);
 
         var loadedEntry = scheduleEntryRepository.findById(scheduleEntry.getScheduleEntryId()).orElseThrow();
         assertThat(loadedEntry).isEqualToIgnoringGivenFields(scheduleEntry, "subEntries");
-        assertThat(loadedEntry.getSubEntries().size()).isEqualTo(scheduleEntry.getSubEntries().size());
     }
 
     @Test
@@ -170,13 +162,7 @@ public class RepositoryTests {
 
         var scheduleEntry = ScheduleEntry.builder()
                 .timeStart(Instant.now())
-                .timeEnd(Instant.now())
-                .subEntries(IntStream.range(0, 2).mapToObj(i -> ScheduleEntry.builder()
-                    .timeStart(Instant.now())
-                    .timeEnd(Instant.now())
-                    .build()).collect(Collectors.toList())
-                ).build();
-        scheduleEntry.getSubEntries().forEach(subEntry -> subEntry.setParent(scheduleEntry));
+                .timeEnd(Instant.now()).build();
 
         Body body = Body.builder()
                 .payment(Payment.builder()
@@ -214,7 +200,9 @@ public class RepositoryTests {
                                 i -> SubTask.builder()
                                 .parent(task)
                                 .isComplete(true)
-                                .scheduleEntry(scheduleEntry.getSubEntries().get(i))
+                                .scheduleEntry(ScheduleEntry.builder()
+                                        .timeStart(Instant.now())
+                                        .timeEnd(Instant.now()).build())
                                 .subTaskType(SubTaskType.PICKUP_FROM_CUSTOMER)
                                 .build()
                         ).collect(Collectors.toList())
@@ -228,10 +216,6 @@ public class RepositoryTests {
         assertThat(loadedTask.getSubTasks().size()).isEqualTo(task.getSubTasks().size());
         assertThat(loadedTask.getScheduleEntry().getScheduleEntryId())
                 .isEqualByComparingTo(task.getScheduleEntry().getScheduleEntryId());
-        assertThat(loadedTask.getScheduleEntry().getSubEntries()).isNotNull();
-        assertThat(loadedTask.getScheduleEntry().getSubEntries().isEmpty()).isFalse();
-        assertThat(loadedTask.getScheduleEntry().getSubEntries().size())
-                .isEqualTo(scheduleEntry.getSubEntries().size());
     }
 
     @Test
@@ -239,14 +223,7 @@ public class RepositoryTests {
         var scheduleEntry = ScheduleEntry.builder()
                 .timeStart(Instant.now())
                 .timeEnd(Instant.now())
-                .subEntries(
-                        Collections.singletonList(ScheduleEntry.builder()
-                                .timeStart(Instant.now())
-                                .timeEnd(Instant.now())
-                                .build())
-                )
                 .build();
-        scheduleEntry.getSubEntries().get(0).setParent(scheduleEntry);
 
         var employee = Employee.builder()
                 .name("Vasya")
@@ -267,7 +244,10 @@ public class RepositoryTests {
         SubTask subTask = SubTask.builder()
                 .subTaskType(SubTaskType.SHAVE)
                 .isComplete(false)
-                .scheduleEntry(scheduleEntry.getSubEntries().get(0))
+                .scheduleEntry(ScheduleEntry.builder()
+                        .timeStart(Instant.now())
+                        .timeEnd(Instant.now())
+                        .build())
                 .parent(task)
                 .build();
         subTaskRepository.save(subTask);
@@ -275,17 +255,12 @@ public class RepositoryTests {
         var loadedSubTask = subTaskRepository.findById(subTask.getSubTaskId()).orElseThrow();
         assertThat(loadedSubTask).isEqualToIgnoringGivenFields(subTask,
                 "parent", "scheduleEntry");
-        assertThat(loadedSubTask.getScheduleEntry()).isEqualToIgnoringGivenFields(
-                scheduleEntry.getSubEntries().get(0), "parent", "subEntries");
         assertThat(loadedSubTask.getParent()).isNotNull();
         assertThat(loadedSubTask.getParent().getTaskId()).isNotNull();
         assertThat(loadedSubTask.getParent().getTaskId()).isEqualByComparingTo(task.getTaskId());
-        assertThat(loadedSubTask.getScheduleEntry().getSubEntries()).isEmpty();
         assertThat(loadedSubTask.getParent()).isNotNull();
         assertThat(loadedSubTask.getParent().getTaskId()).isNotNull();
         assertThat(loadedSubTask.getParent().getTaskId()).isEqualByComparingTo(task.getTaskId());
-
-        assertThat(loadedSubTask.getScheduleEntry().getParent()).isNotNull();
     }
 
     @Test
