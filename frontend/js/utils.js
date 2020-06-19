@@ -1,6 +1,7 @@
 let host = "http://localhost:8080";
 let authUrl = host + "/api/v1/auth";
 let dailyTasksUrl = host + "/api/v1/employees/daily-tasks";
+let completeTaskUrl = host + "/api/v1/employees/complete-task";
 let completeSubTaskUrl = host + "/api/v1/employees/complete-sub-task";
 
 let taskUrl = "task.html";
@@ -112,8 +113,6 @@ function setUpTaskPage(token, taskId) {
         document.getElementById("schedule").setAttribute("href", "groomer.html?token="+token);
 
         let actions = document.getElementById("actions")
-        let button = actions.querySelector("button");
-        actions.removeChild(button);
 
         for (let subTask of curTask["subTasks"]) {
             let div = document.createElement("div");
@@ -138,7 +137,6 @@ function setUpTaskPage(token, taskId) {
             div.appendChild(label);
             actions.appendChild(div);
         }
-        actions.appendChild(button);
     });
 
     console.log("loadTaskInfo() finish");
@@ -164,7 +162,7 @@ function completeSubTask(token, subTaskId) {
 function completeSubTasks() {
     console.log("completeSubTasks() start");
 
-    let actions = document.getElementById("actions")
+    let actions = document.getElementById("actions");
     let params = getTaskPageParams();
     let checkedSubTasks = null;
 
@@ -178,4 +176,28 @@ function completeSubTasks() {
     }
 
     console.log("completeSubTasks() finish");
+}
+
+function completeTask() {
+    console.log("completeTask() start");
+
+    let params = getTaskPageParams();
+    let taskId = params['taskId'];
+    let token = params['token'];
+
+    $.ajax({
+        type: "POST",
+        url: completeTaskUrl + "/" + taskId,
+        dataType: "json",
+        headers: {Token: token},
+        success: function (response) {
+            let title = document.getElementById("bodyTitle").setAttribute(
+                "class", "alert alert-success"
+            );
+
+            console.log("completeTask(" + token + ", " + taskId + ") finish");
+        },
+    });
+
+    console.log("completeTask() finish");
 }
