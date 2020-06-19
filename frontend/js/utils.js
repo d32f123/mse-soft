@@ -101,9 +101,7 @@ function setUpTaskPage(token, taskId) {
         // show task completing
         document.querySelector("h1").innerText = curTask['taskType'];
         if (curTask["complete"]) {
-            let title = document.getElementById("bodyTitle").setAttribute(
-                "class", "alert alert-success"
-            );
+            showTaskComplete();
         }
 
         // show task info
@@ -159,6 +157,15 @@ function completeSubTask(token, subTaskId) {
     });
 }
 
+function showTaskComplete() {
+    document.getElementById("bodyTitle").setAttribute(
+        "class", "alert alert-success"
+    );
+
+    document.getElementById("btnCompleteTask").setAttribute("disabled", "disabled");
+    document.getElementById("btnCompleteSubTask").setAttribute("disabled", "disabled");
+}
+
 function completeSubTasks() {
     console.log("completeSubTasks() start");
 
@@ -191,10 +198,7 @@ function completeTask() {
         dataType: "json",
         headers: {Token: token},
         success: function (response) {
-            let title = document.getElementById("bodyTitle").setAttribute(
-                "class", "alert alert-success"
-            );
-
+            showTaskComplete();
             console.log("completeTask(" + token + ", " + taskId + ") finish");
         },
     });
