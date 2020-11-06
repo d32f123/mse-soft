@@ -20,7 +20,7 @@ public class CustomerController {
     BodyService bodyService;
 
     @GetMapping
-    public ResponseEntity<BodyState> getBodyState(@RequestParam("paymentId") UUID paymentId) {
+        public ResponseEntity<BodyState> getBodyState(@RequestParam("paymentId") UUID paymentId) {
         var body = bodyService.getBodyByPaymentId(paymentId).orElse(null);
         if (body == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

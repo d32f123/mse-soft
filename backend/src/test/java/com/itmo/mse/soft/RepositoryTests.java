@@ -15,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -49,25 +51,29 @@ public class RepositoryTests {
                         Payment.builder()
                                 .order(
                                         Order.builder()
-                                        .pickupInstant(Instant.now())
+                                        .pickupInstant(getInstant())
                                         .paymentAmount(new BigDecimal("556.00")).build()
-                                ).creationInstant(Instant.now())
+                                ).creationInstant(getInstant())
                                 .bitcoinAddress("asdjkasdjkasdkj").build()
                 ).state(BodyState.RECEIVED)
                 .barcode(UUID.randomUUID().toString())
                 .build();
     }
 
+    Instant getInstant(){
+        return Instant.now().truncatedTo(ChronoUnit.MICROS);
+    }
+    
     @Test
     void savesAndLoadsBody() {
         var order = Order.builder()
                 .paymentAmount(new BigDecimal("123.5"))
-                .pickupInstant(Instant.now())
+                .pickupInstant(getInstant())
                 .build();
 
         var payment = Payment.builder()
                 .bitcoinAddress("someaddress")
-                .creationInstant(Instant.now())
+                .creationInstant(getInstant())
                 .order(order)
                 .build();
 
@@ -78,7 +84,6 @@ public class RepositoryTests {
 
         body.getPayment().setBitcoinAddress("someotheraddress");
         bodyRepository.save(body);
-
         Body savedBody = bodyRepository.findById(body.getId()).orElseThrow();
         assertThat(savedBody).isEqualToIgnoringGivenFields(body, "payment");
         assertThat(savedBody.getPayment().getPaymentId()).isEqualTo(body.getPayment().getPaymentId());
@@ -97,8 +102,8 @@ public class RepositoryTests {
     @Test
     void savesAndLoadsScheduleEntry() {
         ScheduleEntry scheduleEntry = ScheduleEntry.builder()
-                .timeStart(Instant.now())
-                .timeEnd(Instant.now()).build();
+                .timeStart(getInstant())
+                .timeEnd(getInstant()).build();
 
         scheduleEntryRepository.save(scheduleEntry);
 
@@ -110,10 +115,10 @@ public class RepositoryTests {
     void savesAndLoadsOrder() {
         Order order = Order.builder()
                 .paymentAmount(new BigDecimal("123.5"))
-                .pickupInstant(Instant.now())
+                .pickupInstant(getInstant())
                 .build();
 
-        orderRepository.save(order);
+        var order2 = orderRepository.save(order);
         var loadedOrder = orderRepository.findById(order.getOrderId()).orElseThrow();
 
         assertThat(loadedOrder).isEqualToIgnoringGivenFields(order, "paymentAmount");
@@ -124,12 +129,12 @@ public class RepositoryTests {
     void savesAndLoadsPayment() {
         Order order = Order.builder()
                 .paymentAmount(new BigDecimal("123.5"))
-                .pickupInstant(Instant.now())
+                .pickupInstant(getInstant())
                 .build();
 
         Payment payment = Payment.builder()
                 .order(order)
-                .creationInstant(Instant.now())
+                .creationInstant(getInstant())
                 .bitcoinAddress("somebitcoin")
                 .build();
 
@@ -161,15 +166,15 @@ public class RepositoryTests {
         employeeRepository.save(employee);
 
         var scheduleEntry = ScheduleEntry.builder()
-                .timeStart(Instant.now())
-                .timeEnd(Instant.now()).build();
+                .timeStart(getInstant())
+                .timeEnd(getInstant()).build();
 
         Body body = Body.builder()
                 .payment(Payment.builder()
-                        .creationInstant(Instant.now())
+                        .creationInstant(getInstant())
                         .bitcoinAddress("asdf")
                         .order(Order.builder()
-                            .pickupInstant(Instant.now())
+                            .pickupInstant(getInstant())
                             .paymentAmount(new BigDecimal("135.50"))
                             .build())
                         .build())
@@ -201,8 +206,8 @@ public class RepositoryTests {
                                 .parent(task)
                                 .isComplete(true)
                                 .scheduleEntry(ScheduleEntry.builder()
-                                        .timeStart(Instant.now())
-                                        .timeEnd(Instant.now()).build())
+                                        .timeStart(getInstant())
+                                        .timeEnd(getInstant()).build())
                                 .subTaskType(SubTaskType.PICKUP_FROM_CUSTOMER)
                                 .build()
                         ).collect(Collectors.toList())
@@ -221,8 +226,8 @@ public class RepositoryTests {
     @Test
     void savesAndLoadsSubTask() {
         var scheduleEntry = ScheduleEntry.builder()
-                .timeStart(Instant.now())
-                .timeEnd(Instant.now())
+                .timeStart(getInstant())
+                .timeEnd(getInstant())
                 .build();
 
         var employee = Employee.builder()
@@ -245,8 +250,8 @@ public class RepositoryTests {
                 .subTaskType(SubTaskType.SHAVE)
                 .isComplete(false)
                 .scheduleEntry(ScheduleEntry.builder()
-                        .timeStart(Instant.now())
-                        .timeEnd(Instant.now())
+                        .timeStart(getInstant())
+                        .timeEnd(getInstant())
                         .build())
                 .parent(task)
                 .build();

@@ -38,6 +38,13 @@ public class TestHelper {
                 .employeeRole(EmployeeRole.GROOMER).build();
     }
 
+    public Employee createBodyOwner() {
+        return createEmployee();
+//        return Employee.builder()
+//                .name(UUID.randomUUID().toString())
+//                .employeeRole(EmployeeRole.GROOMER).build();
+    }
+
     public Instant getTimeAt(int hours, int minutes) {
 
         return LocalDateTime.of(LocalDate.now(), LocalTime.of(hours, minutes)).toInstant(ZoneOffset.UTC);
