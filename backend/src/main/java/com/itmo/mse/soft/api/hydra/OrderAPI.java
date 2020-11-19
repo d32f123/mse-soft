@@ -26,6 +26,10 @@ public class OrderAPI {
         return ret;
     }
 
+    public void queueOrder(Order order){
+        orderQueue.add(order);
+    }
+
     public void confirmOrder(UUID orderId, String bitcoinAddress, String bodyStateUrl) {
         log.info("Order '{}' is confirmed: '{}', '{}'", orderId, bitcoinAddress, bodyStateUrl);
     }

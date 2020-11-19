@@ -1,6 +1,7 @@
 package com.itmo.mse.soft;
 
 import com.itmo.mse.soft.TestHelper;
+import com.itmo.mse.soft.api.hydra.OrderAPI;
 import com.itmo.mse.soft.repository.*;
 import com.itmo.mse.soft.service.AuthService;
 import com.itmo.mse.soft.service.AuthServiceTests;
@@ -33,13 +34,16 @@ public class BusinessProcess {
     private TestHelper testHelper;
     @Autowired
     AuthService authService;
+    @Autowired
+    OrderAPI orderAPI;
 
     @Test
     void loginBodyOwner(){
-        var employee = testHelper.createBodyOwner();
-        employeeRepository.save(employee);
+        //reserveSlot
+        var body = testHelper.createBody();
+        orderAPI.queueOrder();
 
-        assertThat(authService.authenticate(employee.getName())).isBase64();
+
     }
 
     @Test
