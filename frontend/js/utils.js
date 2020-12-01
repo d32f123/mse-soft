@@ -8,7 +8,7 @@ let taskUrl = "task.html";
 
 function auth(data, success, error){
     $.ajax({
-        type: "GET",
+        type: "POST",
         url: authUrl,
         data: data,
         success: success,
