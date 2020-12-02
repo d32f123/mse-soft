@@ -4,6 +4,9 @@ import com.itmo.mse.soft.entity.*;
 import com.itmo.mse.soft.repository.EmployeeRepository;
 import com.itmo.mse.soft.repository.PigstyRepository;
 import com.itmo.mse.soft.repository.ReaderRepository;
+import java.util.Random;
+import java.util.UUID;
+import java.util.stream.IntStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -68,9 +71,32 @@ public class SoftApplication {
 
     @PostConstruct
     public void init() {
+//        IntStream.range(0, 50)
+//            .mapToObj(i -> generatePigsty())
+//            .forEach(pigstyRepository::save);
+//        IntStream.range(0, 50)
+//            .mapToObj(i -> generateEmployee(EmployeeRole.PIG_MASTER))
+//            .forEach(employeeRepository::save);
+//        IntStream.range(0, 100)
+//            .mapToObj(i -> generateEmployee(EmployeeRole.GROOMER))
+//            .forEach(employeeRepository::save);
+        readerRepository.saveAll(readers);
         employeeRepository.saveAll(employees);
         pigstyRepository.saveAll(pigsties);
-        readerRepository.saveAll(readers);
+    }
+
+    Pigsty generatePigsty(){
+        return Pigsty.builder()
+            .pigAmount(5)
+            .pigstyNumber(new Random().nextInt(100000))
+            .build();
+    }
+
+    Employee generateEmployee(EmployeeRole employeeRole){
+        return Employee.builder()
+            .name("Oleg" + UUID.randomUUID().toString())
+            .employeeRole(employeeRole)
+            .build();
     }
 
 }

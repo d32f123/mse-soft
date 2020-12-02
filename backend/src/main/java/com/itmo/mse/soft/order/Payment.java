@@ -24,7 +24,7 @@ public class Payment {
     private UUID paymentId;
 
     @OneToOne(optional = false, cascade = CascadeType.ALL)
-    private Order order;
+    private BodyOrder bodyOrder;
 
     @Column(nullable = false)
     private String bitcoinAddress;

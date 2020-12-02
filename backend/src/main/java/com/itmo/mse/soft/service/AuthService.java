@@ -34,7 +34,7 @@ public class AuthService {
                 .employee(employee)
                 .expirationInstant(Instant.now().plus(Duration.ofMinutes(60)))
                 .build();
-        tokenRepository.save(token);
+        tokenRepository.saveAndFlush(token);
 
         return Base64.getUrlEncoder().encodeToString(token.getId().toString().getBytes(StandardCharsets.UTF_8));
     }

@@ -56,14 +56,14 @@ public class PigstyService extends EntityService<Pigsty> {
         }
 
         task.setPigsty(pigsty);
-        return taskRepository.save(task);
+        return taskRepository.saveAndFlush(task);
     }
 
     public Pigsty feedPigsty(Task task) {
         assert task.getPigsty() != null;
 
         task.getPigsty().setLastFedTask(task);
-        return pigstyRepository.save(task.getPigsty());
+        return pigstyRepository.saveAndFlush(task.getPigsty());
     }
 
 }

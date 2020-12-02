@@ -1,37 +1,37 @@
 package com.itmo.mse.soft.api.hydra;
 
-import com.itmo.mse.soft.order.Order;
+import com.itmo.mse.soft.order.BodyOrder;
+import com.itmo.mse.soft.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 
 @Service
 @Slf4j
 public class OrderAPI {
-    Queue<Order> orderQueue = new LinkedList<>();
+    Queue<BodyOrder> bodyOrderQueue = new LinkedList<>();
+    OrderRepository orderRepository;
 
     public OrderAPI() {
     }
 
-    public List<Order> receiveNewOrders() {
-        if (orderQueue.isEmpty()) {
+    public List<BodyOrder> receiveNewOrders() {
+        if (bodyOrderQueue.isEmpty()) {
             return Collections.emptyList();
         }
-        var ret = List.copyOf(orderQueue);
-        orderQueue.clear();
+        var ret = List.copyOf(bodyOrderQueue);
+        bodyOrderQueue.clear();
         return ret;
     }
 
-    public void queueOrder(Order order){
-        orderQueue.add(order);
+    public void queueOrder(BodyOrder bodyOrder){
+        bodyOrderQueue.add(bodyOrder);
     }
 
-    public void confirmOrder(UUID orderId, String bitcoinAddress, String bodyStateUrl) {
+    public boolean confirmOrder(UUID orderId, String bitcoinAddress, String bodyStateUrl) {
         log.info("Order '{}' is confirmed: '{}', '{}'", orderId, bitcoinAddress, bodyStateUrl);
+        return true;
     }
 
     public void cancelOrder(UUID orderId) {

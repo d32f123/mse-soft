@@ -4,7 +4,7 @@ import com.itmo.mse.soft.entity.Body;
 import com.itmo.mse.soft.entity.BodyState;
 import com.itmo.mse.soft.entity.Employee;
 import com.itmo.mse.soft.entity.EmployeeRole;
-import com.itmo.mse.soft.order.Order;
+import com.itmo.mse.soft.order.BodyOrder;
 import com.itmo.mse.soft.order.Payment;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +22,8 @@ public class TestHelper {
         return Body.builder()
                 .payment(
                         Payment.builder()
-                                .order(
-                                        Order.builder()
+                                .bodyOrder(
+                                        BodyOrder.builder()
                                         .pickupInstant(Instant.now())
                                         .paymentAmount(new BigDecimal("132.50")).build()
                                 ).bitcoinAddress(UUID.randomUUID().toString())
@@ -32,10 +32,10 @@ public class TestHelper {
                 .state(state).build();
     }
 
-    public Employee createEmployee() {
+    public Employee createEmployee(EmployeeRole employeeRole) {
         return Employee.builder()
                 .name(UUID.randomUUID().toString())
-                .employeeRole(EmployeeRole.GROOMER).build();
+                .employeeRole(employeeRole).build();
     }
 
     public Instant getTimeAt(int hours, int minutes) {

@@ -3,7 +3,7 @@ package com.itmo.mse.soft.service;
 import com.itmo.mse.soft.TableCleaner;
 import com.itmo.mse.soft.TestHelper;
 import com.itmo.mse.soft.entity.*;
-import com.itmo.mse.soft.order.Order;
+import com.itmo.mse.soft.order.BodyOrder;
 import com.itmo.mse.soft.order.Payment;
 import com.itmo.mse.soft.repository.BodyRepository;
 import com.itmo.mse.soft.repository.EmployeeRepository;
@@ -45,8 +45,8 @@ public class BodyServiceTests {
                 .barcode(UUID.randomUUID().toString())
                 .state(BodyState.GROOMED)
                 .payment(
-                        Payment.builder().order(
-                                Order.builder()
+                        Payment.builder().bodyOrder(
+                                BodyOrder.builder()
                                         .paymentAmount(new BigDecimal("335.50"))
                                         .pickupInstant(Instant.now()).build()
                         ).bitcoinAddress("345959ajsdjk_39312").creationInstant(Instant.now()).build()
@@ -96,8 +96,8 @@ public class BodyServiceTests {
         pigstyRepository.save(pigsty);
 
         var payment = Payment.builder()
-                .order(
-                        Order.builder()
+                .bodyOrder(
+                        BodyOrder.builder()
                         .paymentAmount(new BigDecimal("123.50"))
                         .pickupInstant(Instant.now())
                         .build()
@@ -105,8 +105,8 @@ public class BodyServiceTests {
                 .creationInstant(Instant.now())
                 .build();
         var anotherPayment = Payment.builder()
-                .order(
-                        Order.builder()
+                .bodyOrder(
+                        BodyOrder.builder()
                         .paymentAmount(new BigDecimal("12344.50"))
                         .pickupInstant(Instant.now().plus(Duration.ofMinutes(5)))
                         .build()

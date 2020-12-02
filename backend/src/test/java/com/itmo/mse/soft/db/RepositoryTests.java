@@ -1,7 +1,8 @@
-package com.itmo.mse.soft;
+package com.itmo.mse.soft.db;
 
+import com.itmo.mse.soft.TestHelper;
 import com.itmo.mse.soft.entity.*;
-import com.itmo.mse.soft.order.Order;
+import com.itmo.mse.soft.order.BodyOrder;
 import com.itmo.mse.soft.order.Payment;
 import com.itmo.mse.soft.repository.*;
 import com.itmo.mse.soft.schedule.ScheduleEntry;
@@ -16,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -49,8 +49,8 @@ public class RepositoryTests {
         return Body.builder()
                 .payment(
                         Payment.builder()
-                                .order(
-                                        Order.builder()
+                                .bodyOrder(
+                                        BodyOrder.builder()
                                         .pickupInstant(getInstant())
                                         .paymentAmount(new BigDecimal("556.00")).build()
                                 ).creationInstant(getInstant())
@@ -63,10 +63,10 @@ public class RepositoryTests {
     Instant getInstant(){
         return Instant.now().truncatedTo(ChronoUnit.MICROS);
     }
-    
+
     @Test
     void savesAndLoadsBody() {
-        var order = Order.builder()
+        var order = BodyOrder.builder()
                 .paymentAmount(new BigDecimal("123.5"))
                 .pickupInstant(getInstant())
                 .build();
@@ -74,7 +74,7 @@ public class RepositoryTests {
         var payment = Payment.builder()
                 .bitcoinAddress("someaddress")
                 .creationInstant(getInstant())
-                .order(order)
+                .bodyOrder(order)
                 .build();
 
 
@@ -113,27 +113,27 @@ public class RepositoryTests {
 
     @Test
     void savesAndLoadsOrder() {
-        Order order = Order.builder()
-                .paymentAmount(new BigDecimal("123.5"))
+        BodyOrder bodyOrder = BodyOrder.builder()
+                .paymentAmount(new BigDecimal("123.50"))
                 .pickupInstant(getInstant())
                 .build();
 
-        var order2 = orderRepository.save(order);
-        var loadedOrder = orderRepository.findById(order.getOrderId()).orElseThrow();
+        var order2 = orderRepository.save(bodyOrder);
+        var loadedOrder = orderRepository.findById(bodyOrder.getOrderId()).orElseThrow();
 
-        assertThat(loadedOrder).isEqualToIgnoringGivenFields(order, "paymentAmount");
-        assertThat(loadedOrder.getPaymentAmount().equals(order.getPaymentAmount()));
+        assertThat(loadedOrder).isEqualToIgnoringGivenFields(bodyOrder, "paymentAmount");
+        assertThat(loadedOrder.getPaymentAmount()).isEqualTo(bodyOrder.getPaymentAmount());
     }
 
     @Test
     void savesAndLoadsPayment() {
-        Order order = Order.builder()
+        BodyOrder bodyOrder = BodyOrder.builder()
                 .paymentAmount(new BigDecimal("123.5"))
                 .pickupInstant(getInstant())
                 .build();
 
         Payment payment = Payment.builder()
-                .order(order)
+                .bodyOrder(bodyOrder)
                 .creationInstant(getInstant())
                 .bitcoinAddress("somebitcoin")
                 .build();
@@ -141,8 +141,8 @@ public class RepositoryTests {
         paymentRepository.save(payment);
         var loadedPayment = paymentRepository.findById(payment.getPaymentId()).orElseThrow();
         assertThat(loadedPayment).isEqualToIgnoringGivenFields(payment, "order");
-        assertThat(loadedPayment.getOrder()).isNotNull();
-        assertThat(loadedPayment.getOrder()).isEqualToIgnoringGivenFields(order, "paymentAmount");
+        assertThat(loadedPayment.getBodyOrder()).isNotNull();
+        assertThat(loadedPayment.getBodyOrder()).isEqualToIgnoringGivenFields(bodyOrder, "paymentAmount");
     }
 
     @Test
@@ -173,7 +173,7 @@ public class RepositoryTests {
                 .payment(Payment.builder()
                         .creationInstant(getInstant())
                         .bitcoinAddress("asdf")
-                        .order(Order.builder()
+                        .bodyOrder(BodyOrder.builder()
                             .pickupInstant(getInstant())
                             .paymentAmount(new BigDecimal("135.50"))
                             .build())

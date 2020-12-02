@@ -17,11 +17,11 @@ import java.util.*;
 public class BodyService extends EntityService<Body> {
 
     @Autowired
-    protected BodyRepository entityRepository;
+    protected BodyRepository bodyRepository;
 
     @Override
     protected JpaRepository<Body, UUID> getEntityRepository() {
-        return entityRepository;
+        return bodyRepository;
     }
 
     @Autowired
@@ -34,23 +34,23 @@ public class BodyService extends EntityService<Body> {
                 .barcode(issueBarcode())
                 .build();
 
-        this.entityRepository.save(body);
+        this.bodyRepository.saveAndFlush(body);
 
-        if (taskManager.scheduleBody(payment.getOrder().getPickupInstant(), body)) {
+        if (taskManager.scheduleBody(payment.getBodyOrder().getPickupInstant(), body)) {
             return body;
         }
 
         // Uncommit
-        this.entityRepository.delete(body);
+        //this.bodyRepository.delete(body);
         return null;
     }
 
     public Optional<Body> getBodyByBarcode(String barcode) {
-        return entityRepository.findBodyByBarcode(barcode);
+        return bodyRepository.findBodyByBarcode(barcode);
     }
 
     public Optional<Body> getBodyByPaymentId(UUID paymentId) {
-        return entityRepository.findBodyByPayment(Payment.builder().paymentId(paymentId).build());
+        return bodyRepository.findBodyByPayment(Payment.builder().paymentId(paymentId).build());
     }
 
     public String issueBarcode() {

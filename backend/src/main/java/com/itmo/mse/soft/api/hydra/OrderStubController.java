@@ -1,6 +1,6 @@
 package com.itmo.mse.soft.api.hydra;
 
-import com.itmo.mse.soft.order.Order;
+import com.itmo.mse.soft.order.BodyOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,9 +19,9 @@ public class OrderStubController {
     private OrderAPI orderAPI;
 
     @PostMapping
-    public boolean submitOrder(@RequestBody Order order) {
-        order.setOrderId(UUID.randomUUID());
-        return this.orderAPI.orderQueue.offer(order);
+    public boolean submitOrder(@RequestBody BodyOrder bodyOrder) {
+        bodyOrder.setOrderId(UUID.randomUUID());
+        return this.orderAPI.bodyOrderQueue.offer(bodyOrder);
     }
 
 }

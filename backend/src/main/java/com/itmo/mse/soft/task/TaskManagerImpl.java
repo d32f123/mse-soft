@@ -25,6 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @Slf4j
+@Transactional
 public class TaskManagerImpl implements TaskManager {
 
     @Autowired
@@ -69,7 +70,7 @@ public class TaskManagerImpl implements TaskManager {
     private Task completeTask(Task task) {
         task.setComplete(true);
         task.getBody().setState(bodyStateMap.get(task.getTaskType()).atEnd);
-        taskRepository.save(task);
+        taskRepository.saveAndFlush(task);
 
         if (task.getTaskType().isFeedingTask) {
             log.debug("Task '{}' marked at pigsty '{}'", task.getTaskId(), task.getPigsty().getPigstyId());
@@ -127,7 +128,7 @@ public class TaskManagerImpl implements TaskManager {
         log.debug("SubTask '{}' complete, Task '{}' is not yet",
                 subTaskId, task.getTaskId());
 
-        return taskRepository.save(task);
+        return taskRepository.saveAndFlush(task);
     }
 
     @Override
@@ -138,7 +139,7 @@ public class TaskManagerImpl implements TaskManager {
         }
 
         task.setPigsty(pigsty);
-        return taskRepository.save(task);
+        return taskRepository.saveAndFlush(task);
     }
 
     @Override
@@ -154,7 +155,7 @@ public class TaskManagerImpl implements TaskManager {
         }
 
         task.setPigsty(pigsty);
-        return taskRepository.save(task);
+        return taskRepository.saveAndFlush(task);
     }
 
     @Override
@@ -310,7 +311,7 @@ public class TaskManagerImpl implements TaskManager {
         }
 
         task.setBody(body);
-        return taskRepository.save(task);
+        return taskRepository.saveAndFlush(task);
     }
 
     private Task scheduleTask(TaskType taskType, Body body) {
@@ -323,7 +324,7 @@ public class TaskManagerImpl implements TaskManager {
         }
 
         task.setBody(body);
-        return taskRepository.save(task);
+        return taskRepository.saveAndFlush(task);
     }
 
     @Builder
@@ -395,21 +396,36 @@ public class TaskManagerImpl implements TaskManager {
         // Groom: TAKE_FROM_FRIDGE(15) + TAKE_OUT_TEETH(45) + SHAVE(15) + BUTCHER(30) + PUT_IN_FRIDGE(15) = 2 HOURS
         // Feed: TAKE_FROM_FRIDGE(15) + FEED(45) = 1 Hour
         // Regular feed: 45 minutes
-        taskDurationMap.put(TaskType.PICKUP, Duration.ofMinutes(60));
-        taskDurationMap.put(TaskType.GROOM, Duration.ofHours(2));
-        taskDurationMap.put(TaskType.FEED, Duration.ofHours(1));
-        taskDurationMap.put(TaskType.REGULAR_FEED, Duration.ofMinutes(45));
+//        taskDurationMap.put(TaskType.PICKUP, Duration.ofMinutes(60));
+//        taskDurationMap.put(TaskType.GROOM, Duration.ofHours(2));
+//        taskDurationMap.put(TaskType.FEED, Duration.ofHours(1));
+//        taskDurationMap.put(TaskType.REGULAR_FEED, Duration.ofMinutes(45));
+//
+//        subTaskDurationMap.put(SubTaskType.PICKUP_FROM_CUSTOMER, Duration.ofMinutes(30));
+//        subTaskDurationMap.put(SubTaskType.PRINT_BARCODE, Duration.ofMinutes(15));
+//        subTaskDurationMap.put(SubTaskType.PUT_IN_FRIDGE, Duration.ofMinutes(15));
+//
+//        subTaskDurationMap.put(SubTaskType.TAKE_FROM_FRIDGE, Duration.ofMinutes(15));
+//        subTaskDurationMap.put(SubTaskType.TAKE_OUT_TEETH, Duration.ofMinutes(45));
+//        subTaskDurationMap.put(SubTaskType.SHAVE, Duration.ofMinutes(15));
+//        subTaskDurationMap.put(SubTaskType.BUTCHER, Duration.ofMinutes(30));
+//
+//        subTaskDurationMap.put(SubTaskType.FEED, Duration.ofMinutes(45));
+        taskDurationMap.put(TaskType.PICKUP, Duration.ofSeconds(4));
+        taskDurationMap.put(TaskType.GROOM, Duration.ofSeconds(8));
+        taskDurationMap.put(TaskType.FEED, Duration.ofSeconds(4));
+        taskDurationMap.put(TaskType.REGULAR_FEED, Duration.ofSeconds(3));
 
-        subTaskDurationMap.put(SubTaskType.PICKUP_FROM_CUSTOMER, Duration.ofMinutes(30));
-        subTaskDurationMap.put(SubTaskType.PRINT_BARCODE, Duration.ofMinutes(15));
-        subTaskDurationMap.put(SubTaskType.PUT_IN_FRIDGE, Duration.ofMinutes(15));
+        subTaskDurationMap.put(SubTaskType.PICKUP_FROM_CUSTOMER, Duration.ofSeconds(2));
+        subTaskDurationMap.put(SubTaskType.PRINT_BARCODE, Duration.ofSeconds(1));
+        subTaskDurationMap.put(SubTaskType.PUT_IN_FRIDGE, Duration.ofSeconds(1));
 
-        subTaskDurationMap.put(SubTaskType.TAKE_FROM_FRIDGE, Duration.ofMinutes(15));
-        subTaskDurationMap.put(SubTaskType.TAKE_OUT_TEETH, Duration.ofMinutes(45));
-        subTaskDurationMap.put(SubTaskType.SHAVE, Duration.ofMinutes(15));
-        subTaskDurationMap.put(SubTaskType.BUTCHER, Duration.ofMinutes(30));
+        subTaskDurationMap.put(SubTaskType.TAKE_FROM_FRIDGE, Duration.ofSeconds(1));
+        subTaskDurationMap.put(SubTaskType.TAKE_OUT_TEETH, Duration.ofSeconds(3));
+        subTaskDurationMap.put(SubTaskType.SHAVE, Duration.ofSeconds(1));
+        subTaskDurationMap.put(SubTaskType.BUTCHER, Duration.ofSeconds(2));
 
-        subTaskDurationMap.put(SubTaskType.FEED, Duration.ofMinutes(45));
+        subTaskDurationMap.put(SubTaskType.FEED, Duration.ofSeconds(3));
 
         bodyStateMap.put(TaskType.PICKUP, StateTransition.builder()
                 .atStart(BodyState.IN_RECEIVAL)
