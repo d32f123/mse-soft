@@ -17,7 +17,6 @@
                     signInError()
                 } else {
                     console.log("Token: " + response);
-
                     let role = getRole(response);
                     if (role === "GROOMER") {
                         redirectToGroomerPage(response);
@@ -69,7 +68,7 @@
                 </div>
                 <div class="form-row justify-content-center mb-2">
                     <div class="col-4">
-                        <button type="button" class="btn btn-outline-info btn-block" onclick="submit()">Войти</button>
+                        <button type="button" class="btn btn-outline-info btn-block" id="submit" onclick="submit()">Войти</button>
                     </div>
                 </div>
                 <div class="form-row justify-content-center mb-2">
