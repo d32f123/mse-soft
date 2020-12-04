@@ -5,6 +5,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.WebDriver;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,24 +28,28 @@ public class UiTest {
         return driver;
     }
 
-    @Test
-    void loginGroomer(){
-        WebDriver driver = get_driver();
+    void login(WebDriver driver, String login, String password){
         driver.get(indexUrl);
 
         WebElement usernameElement = driver.findElement(By.id("username"));
         usernameElement.clear();
-        usernameElement.sendKeys(groomer_login);
+        usernameElement.sendKeys(login);
 
         WebElement passwordElement = driver.findElement(By.id("password"));
         passwordElement.clear();
-        passwordElement.sendKeys(groomer_password);
+        passwordElement.sendKeys(password);
 
         driver.findElement(By.id("submit")).click();
+    }
+
+    @Test
+    void loginGroomer(){
+        WebDriver driver = get_driver();
+
+        login(driver, groomer_login, groomer_password);
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 
         String titleText = driver.findElement(By.tagName("h1")).getText();
-
         assertThat(titleText).isEqualTo("Домашняя страничка Грумера");
 
         driver.close();
@@ -51,22 +58,48 @@ public class UiTest {
     @Test
     void loginPigMaster(){
         WebDriver driver = get_driver();
-        driver.get(indexUrl);
 
-        WebElement usernameElement = driver.findElement(By.id("username"));
-        usernameElement.clear();
-        usernameElement.sendKeys(pig_master_login);
-
-        WebElement passwordElement = driver.findElement(By.id("password"));
-        passwordElement.clear();
-        passwordElement.sendKeys(pig_master_password);
-
-        driver.findElement(By.id("submit")).click();
+        login(driver, pig_master_login, pig_master_password);
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 
         String titleText = driver.findElement(By.tagName("h1")).getText();
-
         assertThat(titleText).isEqualTo("Домашняя страничка Мастера свиней");
+
+        driver.close();
+    }
+
+    @Test
+    void logoutGroomer(){
+        WebDriver driver = get_driver();
+
+        login(driver, groomer_login, groomer_password);
+        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+
+        String titleText = driver.findElement(By.tagName("h1")).getText();
+        assertThat(titleText).isEqualTo("Домашняя страничка Грумера");
+
+        driver.findElement(By.id("id-logout")).click();
+
+        titleText = driver.findElement(By.tagName("h1")).getText();
+        assertThat(titleText).isEqualTo("Добро пожаловать");
+
+        driver.close();
+    }
+
+    @Test
+    void logoutPigMaster(){
+        WebDriver driver = get_driver();
+
+        login(driver, pig_master_login, pig_master_password);
+        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+
+        String titleText = driver.findElement(By.tagName("h1")).getText();
+        assertThat(titleText).isEqualTo("Домашняя страничка Мастера свиней");
+
+        driver.findElement(By.id("id-logout")).click();
+
+        titleText = driver.findElement(By.tagName("h1")).getText();
+        assertThat(titleText).isEqualTo("Добро пожаловать");
 
         driver.close();
     }
