@@ -1,6 +1,7 @@
 package com.itmo.mse.soft.api.hydra;
 
 import com.itmo.mse.soft.order.BodyOrder;
+import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,8 @@ public class OrderStubController {
     @PostMapping
     public boolean submitOrder(@RequestBody BodyOrder bodyOrder) {
         bodyOrder.setOrderId(UUID.randomUUID());
+        if (bodyOrder.getPickupInstant() == null)
+            bodyOrder.setPickupInstant(Instant.now());
         return this.orderAPI.bodyOrderQueue.offer(bodyOrder);
     }
 

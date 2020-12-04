@@ -14,6 +14,7 @@ import com.itmo.mse.soft.task.TaskType;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import lombok.SneakyThrows;

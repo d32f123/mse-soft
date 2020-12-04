@@ -77,7 +77,7 @@ public class TaskManagerImpl implements TaskManager {
             pigstyService.feedPigsty(task);
         }
 
-        log.debug("Task '{}' is complete", task.getTaskId());
+        log.debug("Task '[{}] {}' is complete", task.getTaskId(), task.getTaskType());
         return task;
     }
 
@@ -122,11 +122,11 @@ public class TaskManagerImpl implements TaskManager {
         subTask.setComplete(true);
         task.getBody().setState(bodyStateMap.get(task.getTaskType()).atStart);
         if (task.getSubTasks().stream().allMatch(SubTask::isComplete)) {
-            log.debug("SubTask '{}' complete", subTaskId);
+            log.debug("SubTask '[{}] {}' complete", subTaskId, subTask.getSubTaskType());
             return completeTask(task);
         }
-        log.debug("SubTask '{}' complete, Task '{}' is not yet",
-                subTaskId, task.getTaskId());
+        log.debug("SubTask '[{}] {}' complete, Task '[{}] {}' is not yet",
+                subTaskId, subTask.getSubTaskType(), task.getTaskId(), task.getTaskType());
 
         return taskRepository.saveAndFlush(task);
     }

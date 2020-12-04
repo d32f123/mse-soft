@@ -20,7 +20,9 @@ public class AuthController {
     private AuthService authService;
 
     @GetMapping
-    public ResponseEntity<String> authenticate(@RequestParam("userName") String userName) {
+    public ResponseEntity<String> authenticate(
+        @RequestParam("userName") String userName,
+        @RequestParam("password") String password) {
         var token = authService.authenticate(userName);
         if (token == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
