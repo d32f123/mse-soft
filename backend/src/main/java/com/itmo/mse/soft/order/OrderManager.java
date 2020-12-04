@@ -31,7 +31,7 @@ public class OrderManager {
 
     public final Queue<BodyOrder> bodyOrderQueue = new ConcurrentLinkedQueue<>();
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 100)
     public void orderConsumer() {
         while (!bodyOrderQueue.isEmpty()) {
             var order = bodyOrderQueue.poll();
@@ -41,11 +41,13 @@ public class OrderManager {
 
             var body = bodyService.createBody(payment);
             if (body == null) {
+                order.setCancelled(true);
                 orderAPI.cancelOrder(orderId);
                 continue;
             }
 
             orderAPI.confirmOrder(orderId, payment.getBitcoinAddress(), buildStateUrl(payment));
+            order.setConfirmed(true);
 
         }
     }
@@ -58,7 +60,7 @@ public class OrderManager {
                 .build();
     }
 
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 100)
     public void orderProducer() {
         bodyOrderQueue.addAll(this.orderAPI.receiveNewOrders());
     }

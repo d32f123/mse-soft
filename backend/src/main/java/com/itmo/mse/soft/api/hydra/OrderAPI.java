@@ -6,11 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 @Service
 @Slf4j
 public class OrderAPI {
-    Queue<BodyOrder> bodyOrderQueue = new LinkedList<>();
+    Queue<BodyOrder> bodyOrderQueue = new ConcurrentLinkedDeque<>();
     OrderRepository orderRepository;
 
     public OrderAPI() {
@@ -23,6 +24,7 @@ public class OrderAPI {
         var ret = List.copyOf(bodyOrderQueue);
         bodyOrderQueue.clear();
         return ret;
+
     }
 
     public void queueOrder(BodyOrder bodyOrder){
@@ -30,12 +32,13 @@ public class OrderAPI {
     }
 
     public boolean confirmOrder(UUID orderId, String bitcoinAddress, String bodyStateUrl) {
+
         log.info("Order '{}' is confirmed: '{}', '{}'", orderId, bitcoinAddress, bodyStateUrl);
         return true;
     }
 
     public void cancelOrder(UUID orderId) {
-        log.info("Order '{}' is canceled", orderId);
+        log.info("Order '{}' is canceled. No free slots.", orderId);
     }
 
     public void setTimeSlotInfo(List<TimeSlotInfo> timeSlotInfos) {

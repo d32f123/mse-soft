@@ -34,14 +34,14 @@ public class BodyService extends EntityService<Body> {
                 .barcode(issueBarcode())
                 .build();
 
-        this.bodyRepository.saveAndFlush(body);
+        this.bodyRepository.save(body);
 
         if (taskManager.scheduleBody(payment.getBodyOrder().getPickupInstant(), body)) {
             return body;
         }
 
         // Uncommit
-        //this.bodyRepository.delete(body);
+        this.bodyRepository.delete(body);
         return null;
     }
 
