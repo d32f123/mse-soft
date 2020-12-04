@@ -1,5 +1,6 @@
 let host = "http://localhost:8080";
 let authUrl = host + "/api/v1/auth";
+let getRoleUrl = host + "/api/v1/employees/get-role";
 let dailyTasksUrl = host + "/api/v1/employees/daily-tasks";
 let completeTaskUrl = host + "/api/v1/employees/complete-task";
 let completeSubTaskUrl = host + "/api/v1/employees/complete-sub-task";
@@ -287,14 +288,30 @@ function completeTask() {
     console.log("completeTask() finish");
 }
 
+
+function getRoleSync(token, success, error) {
+    console.log("getRole() started");
+    $.ajax({
+        async: false,
+        type: "GET",
+        url: getRoleUrl,
+        success: success,
+        error: error,
+        dataType: "json",
+        headers: {Token: token}
+    });
+    console.log("getRole() finished");
+}
+
+
 function getRole(token) {
     console.log("getRole() start");
     getRole.role = null;
 
-    getTasksSync(token, function (response) {
+    getRoleSync(token, function (response) {
         console.log("Response: " + response);
         if (response.length > 0) {
-            getRole.role = response[0]['employee']['employeeRole'];
+            getRole.role = response;
         }
     }, null);
 
