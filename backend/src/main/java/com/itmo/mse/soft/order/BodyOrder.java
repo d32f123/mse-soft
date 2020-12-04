@@ -31,4 +31,8 @@ public class BodyOrder {
     @Column(nullable = false)
     private Instant pickupInstant;
 
+    private boolean confirmed;
+
+    private boolean cancelled;
+
 }

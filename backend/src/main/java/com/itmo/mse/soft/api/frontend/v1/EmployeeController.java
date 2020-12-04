@@ -1,5 +1,6 @@
 package com.itmo.mse.soft.api.frontend.v1;
 
+import com.itmo.mse.soft.entity.EmployeeRole;
 import com.itmo.mse.soft.service.AuthService;
 import com.itmo.mse.soft.service.EmployeeService;
 import com.itmo.mse.soft.task.Task;
@@ -31,6 +32,16 @@ public class EmployeeController {
         }
 
         return ResponseEntity.ok(employeeService.getCurrentDailyTasks(employee));
+    }
+
+    @GetMapping("/get-role")
+    public ResponseEntity<EmployeeRole> getRole(@RequestHeader(name = "Token") String token) {
+        var employee = authService.getEmployeeByToken(token);
+        if (employee == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        return ResponseEntity.ok(employee.getEmployeeRole());
     }
 
     @PostMapping("/complete-task/{taskId}")
