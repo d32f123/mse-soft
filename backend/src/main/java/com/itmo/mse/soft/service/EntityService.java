@@ -19,7 +19,7 @@ public abstract class EntityService<T> {
     }
 
     public T save(T t) {
-        return getEntityRepository().save(t);
+        return getEntityRepository().saveAndFlush(t);
     }
 
     public Iterable<T> saveAll(Iterable<T> t) {

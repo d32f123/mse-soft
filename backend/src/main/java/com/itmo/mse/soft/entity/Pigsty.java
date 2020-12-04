@@ -41,5 +41,10 @@ public class Pigsty {
     public Instant getLastFeedTime() {
         return lastFedTask == null ? null : lastFedTask.getScheduleEntry().getTimeEnd();
     }
+    @Override
+    public String toString(){
+        return "";
+    }
+
 
 }

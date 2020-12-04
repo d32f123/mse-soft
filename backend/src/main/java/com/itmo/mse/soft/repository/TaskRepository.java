@@ -18,6 +18,8 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Task> findByTaskId(UUID id);
 
+    List<Task> findAllByIsComplete(boolean complete);
+
     @Query("select case when count(taskId) > 0 then true else false end from Task " +
             "where pigsty.pigstyId = :pigstyId and " +
             "(:to between scheduleEntry.timeStart and scheduleEntry.timeEnd or " +

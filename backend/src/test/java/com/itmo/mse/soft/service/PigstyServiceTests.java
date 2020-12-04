@@ -1,6 +1,7 @@
 package com.itmo.mse.soft.service;
 
 import com.itmo.mse.soft.TestHelper;
+import com.itmo.mse.soft.entity.EmployeeRole;
 import com.itmo.mse.soft.entity.Pigsty;
 import com.itmo.mse.soft.repository.BodyRepository;
 import com.itmo.mse.soft.repository.EmployeeRepository;
@@ -41,7 +42,7 @@ public class PigstyServiceTests {
 
     @Test
     void shouldReservePigsty() {
-        var employee = testHelper.createEmployee();
+        var employee = testHelper.createEmployee(EmployeeRole.PIG_MASTER);
         var body = testHelper.createBody();
         employeeRepository.save(employee);
         bodyRepository.save(body);

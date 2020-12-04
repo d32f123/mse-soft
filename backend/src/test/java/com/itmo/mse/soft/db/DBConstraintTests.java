@@ -2,15 +2,12 @@ package com.itmo.mse.soft.db;
 
 import com.itmo.mse.soft.entity.Body;
 import com.itmo.mse.soft.entity.Employee;
-import com.itmo.mse.soft.entity.Pigsty;
-import com.itmo.mse.soft.order.Order;
+import com.itmo.mse.soft.order.BodyOrder;
 import com.itmo.mse.soft.order.Payment;
 import com.itmo.mse.soft.repository.BodyRepository;
 import com.itmo.mse.soft.repository.EmployeeRepository;
 import com.itmo.mse.soft.repository.OrderRepository;
 import com.itmo.mse.soft.repository.PaymentRepository;
-import com.itmo.mse.soft.repository.PigstyRepository;
-import com.itmo.mse.soft.repository.ScheduleEntryRepository;
 import com.itmo.mse.soft.repository.SubTaskRepository;
 import com.itmo.mse.soft.repository.TaskRepository;
 import com.itmo.mse.soft.task.SubTask;
@@ -50,8 +47,8 @@ public class DBConstraintTests {
 
   @Test
   void orderConstraint(){
-    Order order = Order.builder().build();
-    Assertions.assertThrows(DataIntegrityViolationException.class, () -> orderRepository.save(order));
+    BodyOrder bodyOrder = BodyOrder.builder().build();
+    Assertions.assertThrows(DataIntegrityViolationException.class, () -> orderRepository.save(bodyOrder));
   }
 
   @Test

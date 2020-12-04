@@ -292,7 +292,7 @@ function getRole(token) {
     getRole.role = null;
 
     getTasksSync(token, function (response) {
-        console.log(response);
+        console.log("Response: " + response);
         if (response.length > 0) {
             getRole.role = response[0]['employee']['employeeRole'];
         }

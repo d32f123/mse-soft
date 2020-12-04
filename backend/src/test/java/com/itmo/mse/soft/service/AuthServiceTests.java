@@ -1,6 +1,7 @@
 package com.itmo.mse.soft.service;
 
 import com.itmo.mse.soft.TestHelper;
+import com.itmo.mse.soft.entity.EmployeeRole;
 import com.itmo.mse.soft.repository.EmployeeRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class AuthServiceTests {
 
     @Test
     void shouldAuthorize() {
-        var employee = testHelper.createEmployee();
+        var employee = testHelper.createEmployee(EmployeeRole.GROOMER);
         employeeRepository.save(employee);
 
         assertThat(authService.authenticate(employee.getName())).isBase64();
@@ -32,7 +33,7 @@ public class AuthServiceTests {
 
     @Test
     void shouldReturnEmployee() {
-        var employee = testHelper.createEmployee();
+        var employee = testHelper.createEmployee(EmployeeRole.GROOMER);
         employeeRepository.save(employee);
 
         var token = authService.authenticate(employee.getName());

@@ -24,6 +24,6 @@ public class ScheduleManager {
     }
 
     public ScheduleEntry registerEntry(ScheduleEntry scheduleEntry) {
-        return scheduleEntryRepository.save(scheduleEntry);
+        return scheduleEntryRepository.saveAndFlush(scheduleEntry);
     }
 }

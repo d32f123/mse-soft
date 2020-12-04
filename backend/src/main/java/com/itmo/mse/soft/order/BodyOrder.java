@@ -17,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "orders")
-public class Order {
+public class BodyOrder {
 
     @Id
     @Column
