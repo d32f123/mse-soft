@@ -18,21 +18,14 @@ function auth(data, success, error){
     });
 }
 
-function getTasks(token, success, error) {
-    $.ajax({
-        type: "GET",
-        url: dailyTasksUrl,
-        success: success,
-        error: error,
-        dataType: "json",
-        headers: {Token: token}
-    });
+function logout() {
+    console.log("redirectToIndexPage() started");
+    window.open("index.html","_self");
+    console.log("redirectToindexPage() finished");
 }
 
-function getTasksSync(token, success, error) {
-    console.log("getTasks() start");
+function getTasks(token, success, error) {
     $.ajax({
-        async: false,
         type: "GET",
         url: dailyTasksUrl,
         success: success,
@@ -288,7 +281,6 @@ function completeTask() {
     console.log("completeTask() finish");
 }
 
-
 function getRoleSync(token, success, error) {
     console.log("getRole() started");
     $.ajax({
@@ -302,7 +294,6 @@ function getRoleSync(token, success, error) {
     });
     console.log("getRole() finished");
 }
-
 
 function getRole(token) {
     console.log("getRole() start");
