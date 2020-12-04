@@ -17,7 +17,6 @@
                     signInError()
                 } else {
                     console.log("Token: " + response);
-
                     let role = getRole(response);
                     if (role === "GROOMER") {
                         redirectToGroomerPage(response);
@@ -28,15 +27,17 @@
             }
 
             function signInError() {
-                alert("Sign in error!")
+                let msgErrorBox = document.getElementById("msg-error-box");
+                msgErrorBox.innerHTML = "<div class=\"alert alert-danger\" role=\"alert\" id=\"msg-error\">\nОшибка авторизации!\n</div>";
             }
 
             function submit() {
                 console.log("submit() start");
 
                 let userName = document.getElementById("username").value;
+                let password = document.getElementById("password").value;
                 auth(
-                    {'userName': userName},
+                    {'userName': userName, 'password': password},
                     signInSuccess,
                     signInError
                 );
@@ -54,12 +55,24 @@
                         <label for="username">Имя пользователя</label>
                     </div>
                     <div class="col-2">
-                        <input type="text" class="form-control" id="username" name="password" value="Oleg" required>
+                        <input type="text" class="form-control" id="username" name="username" value="Oleg" required>
+                    </div>
+                </div>
+                <div class="form-row justify-content-center mb-2">
+                    <div class="col-2">
+                        <label for="username">Пароль</label>
+                    </div>
+                    <div class="col-2">
+                        <input type="password" class="form-control" id="password" name="password" value="" required>
                     </div>
                 </div>
                 <div class="form-row justify-content-center mb-2">
                     <div class="col-4">
-                        <button type="button" class="btn btn-outline-info btn-block" onclick="submit()">Войти</button>
+                        <button type="button" class="btn btn-outline-info btn-block" id="submit" onclick="submit()">Войти</button>
+                    </div>
+                </div>
+                <div class="form-row justify-content-center mb-2">
+                    <div class="col-4" id="msg-error-box">
                     </div>
                 </div>
             </div>
