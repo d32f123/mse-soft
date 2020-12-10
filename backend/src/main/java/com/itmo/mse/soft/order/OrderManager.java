@@ -2,6 +2,7 @@ package com.itmo.mse.soft.order;
 
 import com.itmo.mse.soft.api.hydra.OrderAPI;
 import com.itmo.mse.soft.repository.OrderRepository;
+import com.itmo.mse.soft.repository.PaymentRepository;
 import com.itmo.mse.soft.service.BodyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +27,15 @@ public class OrderManager {
     private BodyService bodyService;
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private PaymentRepository paymentRepository;
 
 
 
     public final Queue<BodyOrder> bodyOrderQueue = new ConcurrentLinkedQueue<>();
 
     @Scheduled(fixedDelay = 100)
+    @Transactional
     public void orderConsumer() {
         while (!bodyOrderQueue.isEmpty()) {
             var order = bodyOrderQueue.poll();
@@ -45,8 +49,12 @@ public class OrderManager {
                 orderAPI.cancelOrder(orderId);
                 continue;
             }
-
-            orderAPI.confirmOrder(orderId, payment.getBitcoinAddress(), buildStateUrl(payment));
+            order.setPaymentId(body.getPayment().getPaymentId());
+            order.setOrderId(body.getPayment().getBodyOrder().getOrderId());
+//            paymentRepository.save(payment);
+//            orderRepository.save(order);
+//            bodyService.save(body);
+            orderAPI.confirmOrder(order.getOrderId(), payment.getBitcoinAddress(), buildStateUrl(payment));
             order.setConfirmed(true);
 
         }

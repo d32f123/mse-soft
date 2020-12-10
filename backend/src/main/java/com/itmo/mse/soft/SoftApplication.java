@@ -33,14 +33,17 @@ public class SoftApplication {
             Employee.builder()
             .name("Shureek")
             .employeeRole(EmployeeRole.GROOMER)
+                .password("Shureek")
             .build(),
             Employee.builder()
             .name("Dron")
             .employeeRole(EmployeeRole.GROOMER)
+                .password("Dron")
             .build(),
             Employee.builder()
             .name("Oleg")
             .employeeRole(EmployeeRole.PIG_MASTER)
+                .password("Oleg")
             .build()
     );
 

@@ -17,8 +17,9 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping
-    public ResponseEntity<String> authenticate(@RequestParam("userName") String userName) {
-        var token = authService.authenticate(userName);
+   public ResponseEntity<String> authenticate(
+        @RequestBody AuthData authData) {
+        var token = authService.authenticate(authData.getUserName(), authData.getPassword());
         if (token == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }

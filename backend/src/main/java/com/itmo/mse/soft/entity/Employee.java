@@ -26,6 +26,9 @@ public class Employee {
     private String name;
 
     @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private EmployeeRole employeeRole;
 }
