@@ -191,8 +191,6 @@ function setUpTaskPage(token, taskId, dashboardUrl) {
         document.getElementById("status").innerText = curTask['body']["state"];
         document.getElementById("barcode").innerText = curTask['body']["barcode"];
         document.getElementById("planed_time").innerText = getFormattedTime(curTask["scheduleEntry"]["timeStart"]);
-        const dashboard = new URL(dashboardUrl);
-        document.getElementById("schedule").setAttribute("href", `${dashboard.pathname}?token=${token}`);
 
         let actions = document.getElementById("actions")
 

@@ -157,7 +157,7 @@ public class UiTest {
     void pickupGroomer3() throws InterruptedException {
         sendPostRequest(
             hydra_orders_url,
-            "{\"paymentAmount\": 100,\"pickupInstant\": \"2020-12-10T19:41:00.000+00:00\"}"
+            "{\"paymentAmount\": 100,\"pickupInstant\": \"2020-12-11T19:41:00.000+00:00\"}"
         );
 
         WebDriver driver = get_driver();
@@ -242,11 +242,11 @@ public class UiTest {
         driver.close();
     }
 
-//    @Test
-//    void Feed(){
-//        sendPostRequest(
-//                hydra_orders_url,
-//                "{\"paymentAmount\": 100,\"pickupInstant\": \"1990-10-10T07:10:10.000+00:00\"}"
-//        );
-//    }
+    @Test
+    void Feed(){
+        sendPostRequest(
+                hydra_orders_url,
+                "{\"paymentAmount\": 100,\"pickupInstant\": \"2020-12-11T07:10:10.000+00:00\"}"
+        );
+    }
 }
