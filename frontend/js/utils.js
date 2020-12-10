@@ -18,6 +18,14 @@ function auth(data, success, error){
     });
 }
 
+function getTokenFromUrl() {
+    let token = window.location.search.substr(1).split("=")[1];
+    token = token.split("&")[0];
+
+    console.log("token: " + token);
+    return token;
+}
+
 function logout() {
     console.log("redirectToIndexPage() started");
     window.open("index.html","_self");
@@ -69,6 +77,7 @@ function createGroomerTable(token) {
             let a = document.createElement("a");
             a.innerText = task["taskType"];
             a.href = taskUrl + "?token=" + token + "&task=" + task['taskId'];
+            a.setAttribute("name", task["taskType"]);
             type.appendChild(a);
 
             let timeStart = document.createElement("th");
