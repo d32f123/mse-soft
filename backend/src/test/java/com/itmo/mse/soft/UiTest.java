@@ -56,7 +56,49 @@ public class UiTest {
     }
 
     @Test
-    void loginGroomer(){
+    void viewSheduleGroomer1(){
+        WebDriver driver = get_driver();
+
+        login(driver, groomer_login, groomer_password);
+        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+
+        String taskType = driver.findElement(By.xpath("//thead/tr[1]/th[1]")).getText();
+        String fromTime = driver.findElement(By.xpath("//thead/tr[1]/th[2]")).getText();
+        String toTime = driver.findElement(By.xpath("//thead/tr[1]/th[3]")).getText();
+
+        assertThat(taskType).isEqualTo("Тип задачи");
+        assertThat(fromTime).isEqualTo("Время начала");
+        assertThat(toTime).isEqualTo("Время окончания");
+
+        driver.close();
+    }
+
+    @Test
+    void viewShedulePigMaster1(){
+        WebDriver driver = get_driver();
+
+        login(driver, pig_master_login, pig_master_password);
+        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+
+        String taskType = driver.findElement(By.xpath("//thead/tr[1]/th[1]")).getText();
+        String fromTime = driver.findElement(By.xpath("//thead/tr[1]/th[2]")).getText();
+        String toTime = driver.findElement(By.xpath("//thead/tr[1]/th[3]")).getText();
+        String lawNumber = driver.findElement(By.xpath("//thead/tr[1]/th[4]")).getText();
+        String pigCount = driver.findElement(By.xpath("//thead/tr[1]/th[5]")).getText();
+        String feedingTime = driver.findElement(By.xpath("//thead/tr[1]/th[6]")).getText();
+
+        assertThat(taskType).isEqualTo("Тип задачи");
+        assertThat(fromTime).isEqualTo("Время начала");
+        assertThat(toTime).isEqualTo("Время окончания");
+        assertThat(lawNumber).isEqualTo("Номер загона");
+        assertThat(pigCount).isEqualTo("Число свиней в загоне");
+        assertThat(feedingTime).isEqualTo("Время последнего кормления");
+
+        driver.close();
+    }
+
+    @Test
+    void loginGroomer2(){
         WebDriver driver = get_driver();
 
         login(driver, groomer_login, groomer_password);
@@ -69,7 +111,7 @@ public class UiTest {
     }
 
     @Test
-    void loginPigMaster(){
+    void loginPigMaster2(){
         WebDriver driver = get_driver();
 
         login(driver, pig_master_login, pig_master_password);
