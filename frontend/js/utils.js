@@ -104,8 +104,8 @@ function createPigMasterTable(token) {
         console.log(tasks);
 
         let tbody = document.getElementById("tbody");
-
-        for (let task of tasks) {
+        let possible = ["IN_FEEDING", "FED", "GROOMED"];
+        for (let task of tasks.filter(task => possible.includes(task.body.state))) {
             let tr = document.createElement("tr");
             if (task.complete) {
                 tr.classList.add("_complete");

@@ -28,7 +28,7 @@ public class PigstyService extends EntityService<Pigsty> {
     }
 
     public Duration getPigstyCoolDownDuration() {
-        return Duration.ofDays(7);
+        return Duration.ofSeconds(10);
     }
 
     public Task reservePigsty(UUID pigstyId, UUID taskId) {
