@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UiTest {
+    private final String currentDate = "2020-12-11T19:41:00.000+00:00";
     private final String firefoxDriver = ConfProperties.getProperty("firefox_driver");
     private final String indexUrl = ConfProperties.getProperty("index_page");
     private final String groomer_login = ConfProperties.getProperty("groomer_login");
@@ -154,10 +155,10 @@ public class UiTest {
     }
 
     @Test
-    void pickupGroomer3() throws InterruptedException {
+    void pickupGroomer3() {
         sendPostRequest(
             hydra_orders_url,
-            "{\"paymentAmount\": 100,\"pickupInstant\": \"2020-12-11T19:41:00.000+00:00\"}"
+            "{\"paymentAmount\": 100,\"pickupInstant\": \""+ currentDate + "\"}"
         );
 
         WebDriver driver = get_driver();
@@ -190,6 +191,48 @@ public class UiTest {
         driver.findElement(By.id("schedule")).click();
 
         driver.close();
+    }
+
+    @Test
+    void printTakeBodyFromOwner4() {
+        sendPostRequest(
+                hydra_orders_url,
+                "{\"paymentAmount\": 100,\"pickupInstant\": \""+ currentDate + "\"}"
+        );
+
+        WebDriver driver = get_driver();
+
+        //
+        WebElement pickup = getPickup(driver, groomer_login, groomer_password);
+        if (Objects.isNull(pickup)) {
+            logout(driver);
+            pickup = getPickup(driver, groomer2_login, groomer2_password);
+
+            if (Objects.isNull(pickup)) {
+                assertThat("There is no PICKUP task.").isEqualTo("");
+            }
+        }
+        pickup.click();
+
+        // Статус: ожидает принятия
+        pause(1000);
+        String corpsStatus = driver.findElement(By.name("corps-status")).getText();
+        assertThat("AWAITING_RECEIVAL").isEqualTo(corpsStatus);
+
+        // Отмечаем PICKUP_FROM_CUSTOMER
+
+        // Выполняем задачу
+        driver.findElement(By.id("btnCompleteTask")).click();
+
+        // Цвет заголовка зеленый
+        WebElement title = driver.findElement(By.id("bodyTitle"));
+        assertThat(title.getAttribute("class")).isEqualTo("alert alert-success");
+
+        // Возвращаемся к расписанию
+        driver.findElement(By.id("schedule")).click();
+
+        driver.close();
+
     }
 
     @Test
@@ -246,7 +289,7 @@ public class UiTest {
     void Feed(){
         sendPostRequest(
                 hydra_orders_url,
-                "{\"paymentAmount\": 100,\"pickupInstant\": \"2020-12-11T07:10:10.000+00:00\"}"
+                "{\"paymentAmount\": 100,\"pickupInstant\": \""+ currentDate + "\"}"
         );
     }
 }
