@@ -26,6 +26,13 @@ function getTokenFromUrl() {
     return token;
 }
 
+function updatePage() {
+    window.setTimeout(function () {
+        let url = window.location;
+        window.open(url,"_self");
+    }, 300);
+}
+
 function logout() {
     console.log("redirectToIndexPage() started");
     window.open("index.html","_self");
@@ -264,6 +271,7 @@ function completeSubTasks() {
         }
     }
 
+    updatePage();
     console.log("completeSubTasks() finish");
 }
 
@@ -285,6 +293,7 @@ function completeTask() {
         },
     });
 
+    updatePage();
     console.log("completeTask() finish");
 }
 
