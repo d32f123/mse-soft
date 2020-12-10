@@ -74,7 +74,10 @@ function createGroomerTable(token) {
 
         let tbody = document.getElementById("tbody");
 
-        for (let task of tasks) {
+        for (let task of tasks.filter(task =>
+            task.body.state !== "AWAITING_RECEIVAL" || task.body.state === "AWAITING_RECEIVAL"
+            && task.taskType === "PICKUP"
+        )) {
             let tr = document.createElement("tr");
             if (task.complete) {
                 tr.classList.add("_complete");
@@ -176,8 +179,7 @@ function getFormattedDateTime(dateTimeString) {
 function setUpTaskPage(token, taskId, dashboardUrl) {
     console.log("loadTaskInfo(" + token + "," + taskId + ") start");
 
-    getTasks(token, function (tasks) {
-        console.log(tasks);
+  getTasks(token, function (tasks) {
 
         let curTask = null;
 
@@ -201,7 +203,10 @@ function setUpTaskPage(token, taskId, dashboardUrl) {
 
         let actions = document.getElementById("actions")
 
-        for (let subTask of curTask["subTasks"]) {
+        let sorted = curTask.subTasks.sort((a, b) => Date.parse(a.scheduleEntry.timeStart) - Date.parse(b.scheduleEntry.timeStart))
+        let doStop = false;
+
+        for (let subTask of sorted) {
             let div = document.createElement("div");
             div.setAttribute("class", "form-check mb-2");
 
@@ -223,6 +228,11 @@ function setUpTaskPage(token, taskId, dashboardUrl) {
             div.appendChild(input);
             div.appendChild(label);
             actions.appendChild(div);
+
+            if (!subTask.complete)
+                doStop = true;
+            if (doStop)
+                break;
         }
     });
 
