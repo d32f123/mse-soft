@@ -11,10 +11,10 @@ function auth(data, success, error){
     $.ajax({
         type: "POST",
         url: authUrl,
-        data: data,
+        data: JSON.stringify(data),
         success: success,
         error: error,
-        dataType: "text"
+        headers: {"Content-Type": "application/json"}
     });
 }
 
