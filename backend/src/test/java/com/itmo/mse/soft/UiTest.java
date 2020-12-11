@@ -134,11 +134,11 @@ public class UiTest {
         driver.close();
     }
 
-    WebElement getPickup(WebDriver driver, String login, String password) {
+    WebElement getUncompletedTask(WebDriver driver, String login, String password, String Name) {
         login(driver, login, password);
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 
-        for (WebElement elem: driver.findElements(By.name("PICKUP"))) {
+        for (WebElement elem: driver.findElements(By.name(Name))) {
             WebElement parent = elem.findElement(By.xpath("./.."));
 
             if (!parent.getAttribute("class").equals("_complete")) {
@@ -164,10 +164,10 @@ public class UiTest {
         WebDriver driver = get_driver();
 
         //
-        WebElement pickup = getPickup(driver, groomer_login, groomer_password);
+        WebElement pickup = getUncompletedTask(driver, groomer_login, groomer_password, "PICKUP");
         if (Objects.isNull(pickup)) {
             logout(driver);
-            pickup = getPickup(driver, groomer2_login, groomer2_password);
+            pickup = getUncompletedTask(driver, groomer2_login, groomer2_password, "PICKUP");
 
             if (Objects.isNull(pickup)) {
                 assertThat("There is no PICKUP task.").isEqualTo("");
@@ -203,10 +203,10 @@ public class UiTest {
         WebDriver driver = get_driver();
 
         //
-        WebElement pickup = getPickup(driver, groomer_login, groomer_password);
+        WebElement pickup = getUncompletedTask(driver, groomer_login, groomer_password, "PICKUP");
         if (Objects.isNull(pickup)) {
             logout(driver);
-            pickup = getPickup(driver, groomer2_login, groomer2_password);
+            pickup = getUncompletedTask(driver, groomer2_login, groomer2_password, "PICKUP");
 
             if (Objects.isNull(pickup)) {
                 assertThat("There is no PICKUP task.").isEqualTo("");
@@ -244,10 +244,10 @@ public class UiTest {
         WebDriver driver = get_driver();
 
         //
-        WebElement pickup = getPickup(driver, groomer_login, groomer_password);
+        WebElement pickup = getUncompletedTask(driver, groomer_login, groomer_password, "PICKUP");
         if (Objects.isNull(pickup)) {
             logout(driver);
-            pickup = getPickup(driver, groomer2_login, groomer2_password);
+            pickup = getUncompletedTask(driver, groomer2_login, groomer2_password, "PICKUP");
 
             if (Objects.isNull(pickup)) {
                 assertThat("There is no PICKUP task.").isEqualTo("");
@@ -291,10 +291,10 @@ public class UiTest {
         WebDriver driver = get_driver();
 
         //
-        WebElement pickup = getPickup(driver, groomer_login, groomer_password);
+        WebElement pickup = getUncompletedTask(driver, groomer_login, groomer_password, "PICKUP");
         if (Objects.isNull(pickup)) {
             logout(driver);
-            pickup = getPickup(driver, groomer2_login, groomer2_password);
+            pickup = getUncompletedTask(driver, groomer2_login, groomer2_password, "PICKUP");
 
             if (Objects.isNull(pickup)) {
                 assertThat("There is no PICKUP task.").isEqualTo("");
@@ -325,6 +325,56 @@ public class UiTest {
         // Статус трупа RECEIVED
         corpsStatus = driver.findElement(By.name("corps-status")).getText();
         assertThat("RECEIVED").isEqualTo(corpsStatus);
+
+        driver.close();
+    }
+
+    @Test
+    void takeFromFridge7() {
+        sendPostRequest(
+                hydra_orders_url,
+                "{\"paymentAmount\": 100,\"pickupInstant\": \""+ currentDate + "\"}"
+        );
+
+        WebDriver driver = get_driver();
+
+        // Выполняем PICKUP
+        WebElement pickup = getUncompletedTask(driver, groomer_login, groomer_password, "PICKUP");
+        if (Objects.isNull(pickup)) {
+            logout(driver);
+            pickup = getUncompletedTask(driver, groomer2_login, groomer2_password, "PICKUP");
+
+            if (Objects.isNull(pickup)) {
+                assertThat("There is no PICKUP task.").isEqualTo("");
+            }
+        }
+        pickup.click();
+        pause(300);
+        driver.findElement(By.id("btnCompleteTask")).click();
+
+        // Возвращаемся к расписанию
+        driver.findElement(By.id("schedule")).click();
+
+        // Переходим в GROOM
+        WebElement groom = getUncompletedTask(driver, groomer_login, groomer_password, "GROOM");
+        if (Objects.isNull(groom)) {
+            logout(driver);
+            groom = getUncompletedTask(driver, groomer2_login, groomer2_password, "GROOM");
+
+            if (Objects.isNull(groom)) {
+                assertThat("There is no GROOM task.").isEqualTo("");
+            }
+        };
+        groom.click();
+
+        // Выполняем TAKE_FROM_FRIDGE
+        driver.findElement(By.name("TAKE_FROM_FRIDGE")).click();
+        driver.findElement(By.id("btnCompleteSubTask")).click();
+        pause(300);
+
+        // Статус трупа RECEIVED
+        String corpsStatus = driver.findElement(By.name("corps-status")).getText();
+        assertThat("IN_GROOMING").isEqualTo(corpsStatus);
 
         driver.close();
     }
