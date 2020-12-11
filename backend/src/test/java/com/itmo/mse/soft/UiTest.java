@@ -742,7 +742,7 @@ public class UiTest {
     void auth2() {
         WebDriver driver = get_driver();
 
-        login(driver, groomer_login, "qwerty");
+        login(driver, groomer2_login, "qwerty");
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 
         String titleText = driver.findElement(By.tagName("h1")).getText();
@@ -755,17 +755,16 @@ public class UiTest {
     void auth3() {
         WebDriver driver = get_driver();
 
-        login(driver, "sdasd", "asdasd");
+        login(driver, pig_master_login, "password");
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 
         String titleText = driver.findElement(By.tagName("h1")).getText();
-        assertThat(titleText).isNotEqualTo("Домашняя страничка Грумера");
+        assertThat(titleText).isNotEqualTo("Домашняя страничка Мастера Свиней");
 
         driver.close();
     }
 
-    @Test
-    void Feed(){
+    void lalala(){
         sendPostRequest(
                 hydra_orders_url,
                 "{\"paymentAmount\": 100,\"pickupInstant\": \""+ currentDate + "\"}"
