@@ -33,4 +33,9 @@ public class Body {
     @Enumerated(EnumType.STRING)
     private BodyState state;
 
+    private boolean teethTakenOut = false;
+
+    private boolean shaved = false;
+
+    private boolean butched = false;
 }

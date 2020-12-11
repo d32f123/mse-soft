@@ -13,11 +13,12 @@ public class FridgeService {
     private BodyService bodyService;
 
     public Body enterFridge(Body body) {
+        log.info("BODY IS IN THE FRIDGE");
         return body;
     }
 
     public Body closeFridge(Body body) {
-        // TODO: Implement autocomplete of task so that body automatically transitions to new state
+        log.info("BODY IS OUT OF THE FRIDGE");
         return body;
     }
 

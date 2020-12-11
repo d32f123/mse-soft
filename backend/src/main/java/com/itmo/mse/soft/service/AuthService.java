@@ -46,7 +46,9 @@ public class AuthService {
 
     public void logout(String tokenBase){
         var tokenId = new String(Base64.getUrlDecoder().decode(tokenBase), StandardCharsets.UTF_8);
-        tokenRepository.deleteById(UUID.fromString(tokenId));
+        var token = tokenRepository.findById(UUID.fromString(tokenId)).orElse(null);
+        if (token != null)
+            tokenRepository.deleteById(UUID.fromString(tokenId));
     }
 
     public Employee getEmployeeByToken(String tokenBase) {

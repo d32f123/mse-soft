@@ -6,8 +6,10 @@ let completeTaskUrl = host + "/api/v1/employees/complete-task";
 let completeSubTaskUrl = host + "/api/v1/employees/complete-sub-task";
 let token;
 let taskUrl = "task.html";
+var userName;
 
 function auth(data, success, error){
+    userName = data.username;
     $.ajax({
         type: "POST",
         url: authUrl,
@@ -19,6 +21,14 @@ function auth(data, success, error){
 }
 
 function getTokenFromUrl() {
+    let token = window.location.search.substr(1).split("=")[1];
+    token = token.split("&")[0];
+
+    console.log("token: " + token);
+    return token;
+}
+
+function getNameFromUrl() {
     let token = window.location.search.substr(1).split("=")[1];
     token = token.split("&")[0];
 
@@ -59,7 +69,7 @@ function getTasks(token, success, error) {
 function redirectToGroomerPage(token) {
     console.log("redirectToGroomerPage(" + token + ") start");
 
-    window.open("groomer.html?token="+token,"_self");
+    window.open("groomer.html?token="+token + "&username=" + userName ,"_self");
 
     console.log("redirectToGroomerPage finish");
 }

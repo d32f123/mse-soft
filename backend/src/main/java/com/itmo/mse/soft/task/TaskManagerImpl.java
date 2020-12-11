@@ -8,6 +8,7 @@ import com.itmo.mse.soft.schedule.ScheduleEntry;
 import com.itmo.mse.soft.schedule.ScheduleManager;
 import com.itmo.mse.soft.service.EmployeeService;
 import com.itmo.mse.soft.service.PigstyService;
+import com.itmo.mse.soft.service.ReaderService;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,8 @@ public class TaskManagerImpl implements TaskManager {
     SubTaskRepository subTaskRepository;
     @Autowired
     PigstyService pigstyService;
+    @Autowired
+    ReaderService readerService;
 
     private final ConcurrentMap<UUID, ReentrantLock> taskLocks = new ConcurrentHashMap<>();
 
@@ -71,6 +74,10 @@ public class TaskManagerImpl implements TaskManager {
         task.setComplete(true);
         task.getBody().setState(bodyStateMap.get(task.getTaskType()).atEnd);
         taskRepository.saveAndFlush(task);
+
+        if (task.getTaskType().equals(TaskType.PICKUP)){
+            task.getBody().setBarcode(issueBarcode());
+        }
 
         if (task.getTaskType().isFeedingTask) {
             log.debug("Task '{}' marked at pigsty '{}'", task.getTaskId(), task.getPigsty().getPigstyId());
@@ -118,6 +125,28 @@ public class TaskManagerImpl implements TaskManager {
             log.error("SubTask '{}' is already complete", subTaskId);
             return task;
         }
+        switch (subTask.getSubTaskType()){
+            case PRINT_BARCODE:
+                subTask.getParent().getBody().setBarcode(issueBarcode());
+                break;
+            case PUT_IN_FRIDGE:
+                readerService.scanBarcode(ReaderLocation.AT_FRIDGE_ENTRANCE, task.getBody().getBarcode());
+                break;
+            case TAKE_FROM_FRIDGE:
+                readerService.scanBarcode(ReaderLocation.AT_FRIDGE_EXIT, task.getBody().getBarcode());
+                break;
+            case TAKE_OUT_TEETH:
+                task.getBody().setTeethTakenOut(true);
+                break;
+            case SHAVE:
+                task.getBody().setShaved(true);
+                break;
+            case BUTCHER:
+                task.getBody().setButched(true);
+                break;
+            default:
+                break;
+        }
 
         subTask.setComplete(true);
         task.getBody().setState(bodyStateMap.get(task.getTaskType()).atStart);
@@ -129,6 +158,12 @@ public class TaskManagerImpl implements TaskManager {
                 subTaskId, subTask.getSubTaskType(), task.getTaskId(), task.getTaskType());
 
         return taskRepository.saveAndFlush(task);
+    }
+
+    public String issueBarcode() {
+        log.debug("Issuing barcode");
+
+        return UUID.randomUUID().toString();
     }
 
     @Override

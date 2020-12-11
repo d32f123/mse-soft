@@ -2,6 +2,7 @@ package com.itmo.mse.soft.service;
 
 import com.itmo.mse.soft.entity.Body;
 import com.itmo.mse.soft.entity.Reader;
+import com.itmo.mse.soft.entity.ReaderLocation;
 import com.itmo.mse.soft.repository.ReaderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,9 @@ public class ReaderService extends EntityService<Reader> {
         return readerRepository;
     }
 
-    public Body scanBarcode(UUID readerId, String barcode) {
+    public Body scanBarcode(ReaderLocation readerLocation, String barcode) {
         var body = bodyService.getBodyByBarcode(barcode).orElseThrow();
-        var reader = readerRepository.findById(readerId).orElseThrow();
+        var reader = readerRepository.findByLocation(readerLocation).orElseThrow();
 
         switch (reader.getLocation()) {
             case AT_FRIDGE_ENTRANCE:

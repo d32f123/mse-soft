@@ -33,7 +33,7 @@ public class BodyService extends EntityService<Body> {
         var body = Body.builder()
                 .payment(payment)
                 .state(BodyState.AWAITING_RECEIVAL)
-                .barcode(issueBarcode())
+                .barcode(null)
                 .build();
 
         this.bodyRepository.save(body);
@@ -55,9 +55,4 @@ public class BodyService extends EntityService<Body> {
         return bodyRepository.findBodyByPayment(Payment.builder().paymentId(paymentId).build());
     }
 
-    public String issueBarcode() {
-        log.debug("Issuing barcode");
-
-        return UUID.randomUUID().toString();
-    }
 }

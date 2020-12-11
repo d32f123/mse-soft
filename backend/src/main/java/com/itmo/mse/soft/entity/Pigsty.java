@@ -7,6 +7,7 @@ import com.itmo.mse.soft.task.Task;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
@@ -35,6 +36,7 @@ public class Pigsty {
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JsonIgnore
+    @EqualsAndHashCode.Exclude
     Task lastFedTask;
 
     @JsonProperty("lastFeedTime")

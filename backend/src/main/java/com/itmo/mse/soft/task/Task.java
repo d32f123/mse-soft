@@ -7,6 +7,7 @@ import com.itmo.mse.soft.schedule.ScheduleEntry;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
@@ -43,6 +44,7 @@ public class Task {
     @ManyToOne(cascade = CascadeType.MERGE)
     private Body body;
 
+    @EqualsAndHashCode.Exclude
     @ManyToOne(cascade = CascadeType.MERGE)
     private Pigsty pigsty;
 
