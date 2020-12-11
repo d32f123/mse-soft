@@ -69,6 +69,9 @@ function payForOrder0() {
       }
 
       document.getElementById("error").innerHTML = ""
+    },
+    error: function (response) {
+      document.getElementById("error").innerHTML = "Ошибка при оплате или получении данных о заказе. Введены некорректные данные."
     }
   });
 
@@ -173,13 +176,8 @@ function createGroomerTable(token) {
     console.log(tasks);
 
     let tbody = document.getElementById("tbody");
-    var possible = ["AWAITING_RECEIVAL", "IN_RECEIVAL"]
-    for (let task of tasks.filter(task =>
-        (!!!possible.includes(task.body.state) ||
-            !!possible.includes(task.body.state)
-        && task.taskType === "PICKUP")
-        && task.body.payment.bodyOrder.paymentAmount === 0
-    )) {
+
+    for (let task of tasks) {
       let tr = document.createElement("tr");
       if (task.complete) {
         tr.classList.add("_complete");
@@ -218,7 +216,7 @@ function createPigMasterTable(token) {
 
     let tbody = document.getElementById("tbody");
     let possible = ["IN_FEEDING", "FED", "GROOMED"];
-    for (let task of tasks.filter(task => possible.includes(task.body.state))) {
+    for (let task of tasks) {
       let tr = document.createElement("tr");
       if (task.complete) {
         tr.classList.add("_complete");
