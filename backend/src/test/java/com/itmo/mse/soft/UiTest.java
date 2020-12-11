@@ -372,7 +372,72 @@ public class UiTest {
         driver.findElement(By.id("btnCompleteSubTask")).click();
         pause(300);
 
-        // Статус трупа RECEIVED
+        // Статус трупа IN_GROOMING
+        String corpsStatus = driver.findElement(By.name("corps-status")).getText();
+        assertThat("IN_GROOMING").isEqualTo(corpsStatus);
+
+        driver.close();
+    }
+
+    @Test
+    void groom8() {
+        sendPostRequest(
+                hydra_orders_url,
+                "{\"paymentAmount\": 100,\"pickupInstant\": \""+ currentDate + "\"}"
+        );
+
+        WebDriver driver = get_driver();
+
+        // Выполняем PICKUP
+        WebElement pickup = getUncompletedTask(driver, groomer_login, groomer_password, "PICKUP");
+        if (Objects.isNull(pickup)) {
+            logout(driver);
+            pickup = getUncompletedTask(driver, groomer2_login, groomer2_password, "PICKUP");
+
+            if (Objects.isNull(pickup)) {
+                assertThat("There is no PICKUP task.").isEqualTo("");
+            }
+        }
+        pickup.click();
+        pause(300);
+        driver.findElement(By.id("btnCompleteTask")).click();
+
+        // Возвращаемся к расписанию
+        driver.findElement(By.id("schedule")).click();
+
+        // Переходим в GROOM
+        WebElement groom = getUncompletedTask(driver, groomer_login, groomer_password, "GROOM");
+        if (Objects.isNull(groom)) {
+            logout(driver);
+            groom = getUncompletedTask(driver, groomer2_login, groomer2_password, "GROOM");
+
+            if (Objects.isNull(groom)) {
+                assertThat("There is no GROOM task.").isEqualTo("");
+            }
+        };
+        groom.click();
+
+        // Выполняем TAKE_FROM_FRIDGE
+        driver.findElement(By.name("TAKE_FROM_FRIDGE")).click();
+        driver.findElement(By.id("btnCompleteSubTask")).click();
+        pause(300);
+
+        // Выполняем TAKE_OUT_TEETH
+        driver.findElement(By.name("TAKE_OUT_TEETH")).click();
+        driver.findElement(By.id("btnCompleteSubTask")).click();
+        pause(300);
+
+        // Выполняем SHAVE
+        driver.findElement(By.name("SHAVE")).click();
+        driver.findElement(By.id("btnCompleteSubTask")).click();
+        pause(300);
+
+        // Выполняем BUTCHER
+        driver.findElement(By.name("BUTCHER")).click();
+        driver.findElement(By.id("btnCompleteSubTask")).click();
+        pause(300);
+
+        // Статус трупа IN_GROOMING
         String corpsStatus = driver.findElement(By.name("corps-status")).getText();
         assertThat("IN_GROOMING").isEqualTo(corpsStatus);
 
