@@ -25,7 +25,7 @@
             console.log("windowOnLoad() start");
             setDateAndTime();
 
-            let token = window.location.search.substr(1).split("=")[1];
+            token = window.location.search.substr(1).split("=")[1];
             console.log("token: " + token);
 
             createPigMasterTable(token);

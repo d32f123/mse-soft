@@ -4,7 +4,7 @@ let getRoleUrl = host + "/api/v1/employees/get-role";
 let dailyTasksUrl = host + "/api/v1/employees/daily-tasks";
 let completeTaskUrl = host + "/api/v1/employees/complete-task";
 let completeSubTaskUrl = host + "/api/v1/employees/complete-sub-task";
-
+let token;
 let taskUrl = "task.html";
 
 function auth(data, success, error){
@@ -35,6 +35,12 @@ function updatePage() {
 
 function logout() {
     console.log("redirectToIndexPage() started");
+    $.ajax({
+        type: "DELETE",
+        url: authUrl,
+        dataType: "json",
+        headers: {Token: token}
+    });
     window.open("index.html","_self");
     console.log("redirectToindexPage() finished");
 }

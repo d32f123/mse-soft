@@ -13,9 +13,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@Transactional
 public class AuthService {
 
     @Autowired
@@ -40,6 +42,11 @@ public class AuthService {
         tokenRepository.saveAndFlush(token);
 
         return Base64.getUrlEncoder().encodeToString(token.getId().toString().getBytes(StandardCharsets.UTF_8));
+    }
+
+    public void logout(String tokenBase){
+        var tokenId = new String(Base64.getUrlDecoder().decode(tokenBase), StandardCharsets.UTF_8);
+        tokenRepository.deleteById(UUID.fromString(tokenId));
     }
 
     public Employee getEmployeeByToken(String tokenBase) {
