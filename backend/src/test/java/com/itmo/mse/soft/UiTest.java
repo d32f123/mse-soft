@@ -764,6 +764,7 @@ public class UiTest {
         driver.close();
     }
 
+    @Test
     void lalala(){
         sendPostRequest(
                 hydra_orders_url,
