@@ -579,6 +579,75 @@ public class UiTest {
     }
 
     @Test
+    void feed11() {
+        sendPostRequest(
+                hydra_orders_url,
+                "{\"paymentAmount\": 100,\"pickupInstant\": \""+ currentDate + "\"}"
+        );
+
+        WebDriver driver = get_driver();
+
+        // Выполняем PICKUP
+        WebElement pickup = getUncompletedTask(driver, groomer_login, groomer_password, "PICKUP");
+        if (Objects.isNull(pickup)) {
+            logout(driver);
+            pickup = getUncompletedTask(driver, groomer2_login, groomer2_password, "PICKUP");
+
+            if (Objects.isNull(pickup)) {
+                assertThat("There is no PICKUP task.").isEqualTo("");
+            }
+        }
+        pickup.click();
+        pause(300);
+        driver.findElement(By.id("btnCompleteTask")).click();
+
+        // Возвращаемся к расписанию
+        driver.findElement(By.id("schedule")).click();
+
+        // Выполняем GROOM
+        WebElement groom = getUncompletedTask(driver, groomer_login, groomer_password, "GROOM");
+        if (Objects.isNull(groom)) {
+            logout(driver);
+            groom = getUncompletedTask(driver, groomer2_login, groomer2_password, "GROOM");
+
+            if (Objects.isNull(groom)) {
+                assertThat("There is no GROOM task.").isEqualTo("");
+            }
+        };
+        groom.click();
+        pause(300);
+        driver.findElement(By.id("btnCompleteTask")).click();
+
+        // Выходим из системы
+        driver.findElement(By.id("schedule")).click();
+        logout(driver);
+        pause(300);
+
+        // Входим как PigMaster и находим FEED
+        WebElement feed = getUncompletedTask(driver, pig_master_login, pig_master_password, "FEED");
+        if (Objects.isNull(feed)) {
+            assertThat("There is no FEED task.").isEqualTo("");
+        }
+        feed.click();
+
+        // Выполняем TAKE_FROM_FRIDGE
+        driver.findElement(By.name("TAKE_FROM_FRIDGE")).click();
+        driver.findElement(By.id("btnCompleteSubTask")).click();
+        pause(300);
+
+        // Выполняем FEED
+        driver.findElement(By.name("FEED")).click();
+        driver.findElement(By.id("btnCompleteSubTask")).click();
+        pause(300);
+
+        // Статус трупа FED
+        String corpsStatus = driver.findElement(By.name("corps-status")).getText();
+        assertThat("FED").isEqualTo(corpsStatus);
+
+        driver.close();
+    }
+
+    @Test
     void logoutEmployee(){
         WebDriver driver = get_driver();
 
