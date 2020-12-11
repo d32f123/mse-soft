@@ -282,6 +282,54 @@ public class UiTest {
     }
 
     @Test
+    void putInFridge6() {
+        sendPostRequest(
+                hydra_orders_url,
+                "{\"paymentAmount\": 100,\"pickupInstant\": \""+ currentDate + "\"}"
+        );
+
+        WebDriver driver = get_driver();
+
+        //
+        WebElement pickup = getPickup(driver, groomer_login, groomer_password);
+        if (Objects.isNull(pickup)) {
+            logout(driver);
+            pickup = getPickup(driver, groomer2_login, groomer2_password);
+
+            if (Objects.isNull(pickup)) {
+                assertThat("There is no PICKUP task.").isEqualTo("");
+            }
+        }
+        pickup.click();
+
+        // Статус: ожидает принятия
+        pause(1000);
+        String corpsStatus = driver.findElement(By.name("corps-status")).getText();
+        assertThat("AWAITING_RECEIVAL").isEqualTo(corpsStatus);
+
+        // Выполняем PICKUP_FROM_CUSTOMER
+        driver.findElement(By.name("PICKUP_FROM_CUSTOMER")).click();
+        driver.findElement(By.id("btnCompleteSubTask")).click();
+        pause(300);
+
+        // Выполняем PRINT_BARCODE
+        driver.findElement(By.name("PRINT_BARCODE")).click();
+        driver.findElement(By.id("btnCompleteSubTask")).click();
+        pause(300);
+
+        // Выполняем PUT_IN_FRIDGE
+        driver.findElement(By.name("PUT_IN_FRIDGE")).click();
+        driver.findElement(By.id("btnCompleteSubTask")).click();
+        pause(300);
+
+        // Статус трупа RECEIVED
+        corpsStatus = driver.findElement(By.name("corps-status")).getText();
+        assertThat("RECEIVED").isEqualTo(corpsStatus);
+
+        driver.close();
+    }
+
+    @Test
     void logoutEmployee(){
         WebDriver driver = get_driver();
 
