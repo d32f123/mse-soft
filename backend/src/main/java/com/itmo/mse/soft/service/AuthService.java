@@ -27,7 +27,7 @@ public class AuthService {
     private EmployeeRepository employeeRepository;
 
     public String authenticate(String employeeName) {
-        return authenticate(employeeName, null);
+        return authenticate(employeeName, employeeName);
     }
     public String authenticate(String employeeName, String password) {
         var employee = employeeRepository.findByNameAndPassword(employeeName, password).orElse(null);
