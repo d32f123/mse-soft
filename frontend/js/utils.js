@@ -125,6 +125,7 @@ function createPigMasterTable(token) {
             let a = document.createElement("a");
             a.innerText = task["taskType"];
             a.href = taskUrl + "?token=" + token + "&task=" + task['taskId'];
+            a.setAttribute("name", task["taskType"]);
             type.appendChild(a);
 
             let timeStart = document.createElement("th");
