@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+        <title>Свиноферма</title>
+
+        <script src="js/utils.js"></script>
+        <script>
+
+        </script>
+    </head>
+    <body>
+        <div style="padding: 10%;">
+            <h1 align="center" style="padding-bottom: 15px">Добро пожаловать в Hydra магазин Свинофермы, анонимный заказчик </h1>
+            <div class="container">
+
+                <h4 align="center">0. Создай заказ, если его еще нет</h4>
+                <div class="form-row justify-content-center mb-2">
+                    <div class="col-2">
+                        <label for="paymentIdPost">Payment Id</label>
+                    </div>
+                    <div class="col-5">
+                        <input type="text" class="form-control" id="paymentIdPost" readonly="true" value="пусто" required>
+                    </div>
+                </div>
+                <div class="form-row justify-content-center mb-2">
+                    <div class="col-2">
+                        <label for="amountPost">К оплате</label>
+                    </div>
+                    <div class="col-5">
+                        <input type="text" class="form-control" id="amountPost" readonly="true" value="0" required>
+                    </div>
+                </div>
+                <div class="form-row justify-content-center mb-2">
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-info btn-block" id="createOrder" onclick="createOrder()">Создать заказ</button>
+                    </div>
+                </div>
+
+                <h4 align="center">1. Получи данные о заказе, или оплати</h4>
+                <div class="form-row justify-content-center mb-2">
+                    <div class="col-2">
+                        <label for="paymentIdPut">Payment Id</label>
+                    </div>
+                    <div class="col-5">
+                        <input type="text" class="form-control" id="paymentIdPut" value="пусто" required>
+                    </div>
+                </div>
+                <div class="form-row justify-content-center mb-2">
+                    <div class="col-2">
+                        <label for="amountPut">Оплатить </label>
+                    </div>
+                    <div class="col-5">
+                        <input type="text" class="form-control" id="amountPut" value="0" required>
+                    </div>
+                </div>
+                <div class="form-row justify-content-center mb-2">
+                    <div class="col-2">
+                        <label for="amountPut">Осталось оплатить </label>
+                    </div>
+                    <div class="col-5">
+                        <input type="text" class="form-control" id="amountToBe" readonly="true"  value="0" required>
+                    </div>
+                </div>
+                <h4 align="center" id="error" style="color:red"></h4>
+                <div class="form-row justify-content-center mb-2">
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-info btn-block" id="pay0" onclick="payForOrder0()">Обновить</button>
+                    </div>
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-info btn-block" id="pay" onclick="payForOrder()">Оплатить</button>
+                    </div>
+                </div>
+
+                <h4 align="center">2. Если заказ оплачен, можешь узнать его статус</h4>
+                <div class="form-row justify-content-center mb-2">
+                    <div class="col-2">
+                        <label for="paymentIdGet">Payment Id</label>
+                    </div>
+                    <div class="col-5">
+                        <input type="text" class="form-control" id="paymentIdGet" readonly="true" value="пусто" required>
+                    </div>
+                </div>
+                <div class="form-row justify-content-center mb-2">
+                    <div class="col-2">
+                        <label for="amountGet">Статус трупа</label>
+                    </div>
+                    <div class="col-5">
+                        <input type="text" class="form-control" id="amountGet" readonly="true" value="непонятно" required>
+                    </div>
+                </div>
+                <div class="form-row justify-content-center mb-2">
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-info btn-block" id="getBodyStatus" disabled="true" onclick="getBodyStatus()">Получить статус трупа</button>
+                    </div>
+                </div>
+
+                <div class="form-row justify-content-center mb-2">
+                    <div class="col-4" id="msg-error-box">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+        <script src="https://editor.unlayer.com/embed.js"></script>
+        <div id="editor" style="height: 400px"></div>
+<!--        <script>-->
+<!--            unlayer.init({-->
+<!--                id: 'editor',-->
+<!--                projectId: 7532,-->
+<!--                templateId: "20207"-->
+<!--            })-->
+<!--        </script>-->
+    </body>
+</html>
