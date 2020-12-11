@@ -215,6 +215,7 @@ function setUpTaskPage(token, taskId, dashboardUrl) {
             input.setAttribute("type", "checkbox");
             input.setAttribute("class", "form-check-input");
             input.setAttribute("value", subTask["subTaskType"]);
+            input.setAttribute("name", subTask["subTaskType"]);
             input.setAttribute("id", subTask["subTaskId"]);
             if (subTask['complete']) {
                 input.setAttribute("disabled", "disabled");

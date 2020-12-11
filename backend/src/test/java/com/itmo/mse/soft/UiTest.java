@@ -220,16 +220,15 @@ public class UiTest {
         assertThat("AWAITING_RECEIVAL").isEqualTo(corpsStatus);
 
         // Отмечаем PICKUP_FROM_CUSTOMER
+        driver.findElement(By.name("PICKUP_FROM_CUSTOMER")).click();
 
-        // Выполняем задачу
-        driver.findElement(By.id("btnCompleteTask")).click();
+        // Выполняем подзадачу
+        driver.findElement(By.id("btnCompleteSubTask")).click();
+        pause(300);
 
-        // Цвет заголовка зеленый
-        WebElement title = driver.findElement(By.id("bodyTitle"));
-        assertThat(title.getAttribute("class")).isEqualTo("alert alert-success");
-
-        // Возвращаемся к расписанию
-        driver.findElement(By.id("schedule")).click();
+        // Статус трупа IN_RECEIVAL
+        corpsStatus = driver.findElement(By.name("corps-status")).getText();
+        assertThat("IN_RECEIVAL").isEqualTo(corpsStatus);
 
         driver.close();
 
