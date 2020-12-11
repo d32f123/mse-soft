@@ -173,11 +173,12 @@ function createGroomerTable(token) {
     console.log(tasks);
 
     let tbody = document.getElementById("tbody");
-
+    var possible = ["AWAITING_RECEIVAL", "IN_RECEIVAL"]
     for (let task of tasks.filter(task =>
-        task.body.state !== "AWAITING_RECEIVAL" || task.body.state
-        === "AWAITING_RECEIVAL"
-        && task.taskType === "PICKUP"
+        (!!!possible.includes(task.body.state) ||
+            !!possible.includes(task.body.state)
+        && task.taskType === "PICKUP")
+        && task.body.payment.bodyOrder.paymentAmount === 0
     )) {
       let tr = document.createElement("tr");
       if (task.complete) {
