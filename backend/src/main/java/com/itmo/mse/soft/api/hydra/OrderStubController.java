@@ -50,7 +50,7 @@ public class OrderStubController {
     @PutMapping
     public ResponseEntity payForOrder(@RequestBody ExecutePayment executePayment) {
         Payment payment = paymentRepository.getOne(executePayment.paymentId);
-        BodyOrder order = orderRepository.findByPaymentId(executePayment.paymentId).orElseThrow();
+        BodyOrder order = orderRepository.findByPaymentId(executePayment.paymentId).orElseThrow(() -> new RuntimeException());
         if (new BigDecimal(0).compareTo(executePayment.amount) > 0)
             return ResponseEntity.badRequest().body("Bad amount");
         if (order.getPaymentAmount().compareTo(executePayment.amount) > 0)

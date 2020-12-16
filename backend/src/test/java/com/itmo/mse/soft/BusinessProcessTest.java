@@ -1,19 +1,25 @@
 package com.itmo.mse.soft;
 
 import com.itmo.mse.soft.api.hydra.OrderAPI;
+import com.itmo.mse.soft.entity.Body;
 import com.itmo.mse.soft.entity.BodyState;
+import com.itmo.mse.soft.entity.Employee;
 import com.itmo.mse.soft.entity.EmployeeRole;
 import com.itmo.mse.soft.order.BodyOrder;
 import com.itmo.mse.soft.order.OrderManager;
+import com.itmo.mse.soft.order.Payment;
 import com.itmo.mse.soft.repository.*;
 import com.itmo.mse.soft.service.AuthService;
 import com.itmo.mse.soft.service.BodyService;
 import com.itmo.mse.soft.service.EmployeeService;
+import com.itmo.mse.soft.task.SubTask;
 import com.itmo.mse.soft.task.Task;
 import com.itmo.mse.soft.task.TaskType;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -147,14 +153,14 @@ class BusinessProcessTest {
     orderAPI.queueOrder(createdBodyOrder);
     //wait end of processing
     Thread.sleep(2000);
-    var payments = paymentRepository.findAllByBodyOrder(createdBodyOrder);
-    var body = bodyRepository.findBodyByPayment(payments.get(0)).orElseThrow();
+    List<Payment> payments = paymentRepository.findAllByBodyOrder(createdBodyOrder);
+    Body body = bodyRepository.findBodyByPayment(payments.get(0)).orElseThrow();
     assertThat(createdBodyOrder.getOrderId()).isEqualTo(body.getPayment().getBodyOrder().getOrderId());
   }
 
   void loginGroomer() {
     reserveSlot(); //1
-    var employee = employeeRepository.findAllByEmployeeRole(EmployeeRole.GROOMER).get(0);
+    Employee employee = employeeRepository.findAllByEmployeeRole(EmployeeRole.GROOMER).get(0);
 
     assertThat(authService.authenticate(employee.getName())).isBase64();
   }
@@ -162,8 +168,8 @@ class BusinessProcessTest {
 
   void acceptBody() {
     loginGroomer(); //1
-    var employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
-    var taskList = new ArrayList<Task>();
+    List<Employee> employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
+    ArrayList<Task> taskList = new ArrayList<Task>();
     employees.forEach(
         e -> taskList.addAll(employeeService.getCurrentDailyTasks(e)
             .stream()
@@ -172,12 +178,12 @@ class BusinessProcessTest {
                     t.getTaskType())).collect(Collectors.toList())));
     assertThat(taskList).hasSize(1);
 
-    var pickUpTask = taskList.get(0);
-    var acceptBodyTaskList = pickUpTask.getSubTasks().stream()
+    Task pickUpTask = taskList.get(0);
+    List<SubTask> acceptBodyTaskList = pickUpTask.getSubTasks().stream()
         .filter(subTask -> PICKUP_FROM_CUSTOMER.equals(subTask.getSubTaskType())).collect(Collectors.toList());
     assertThat(acceptBodyTaskList).hasSize(1);
 
-    var acceptBodyTask = acceptBodyTaskList.get(0);
+    SubTask acceptBodyTask = acceptBodyTaskList.get(0);
     employeeService.completeSubTask(acceptBodyTask.getSubTaskId(), taskList.get(0).getEmployee());
     acceptBodyTask = subTaskRepository.findById(acceptBodyTask.getSubTaskId()).orElse(null);
     assert acceptBodyTask != null;
@@ -187,8 +193,8 @@ class BusinessProcessTest {
 
   void printBarCode() {
     acceptBody(); //1
-    var employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
-    var taskList = new ArrayList<Task>();
+    List<Employee> employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
+    ArrayList<Task> taskList = new ArrayList<Task>();
     employees.forEach(
         e -> taskList.addAll(employeeService.getCurrentDailyTasks(e)
             .stream()
@@ -197,19 +203,19 @@ class BusinessProcessTest {
                     t.getTaskType())).collect(Collectors.toList())));
     assertThat(taskList).hasSize(1);
 
-    var pickUpTask = taskList.get(0);
-    var acceptBodyTaskList = pickUpTask.getSubTasks().stream()
+    Task pickUpTask = taskList.get(0);
+    List<SubTask> acceptBodyTaskList = pickUpTask.getSubTasks().stream()
         .filter(subTask -> PRINT_BARCODE.equals(subTask.getSubTaskType())).collect(Collectors.toList());
     assertThat(acceptBodyTaskList).hasSize(1);
 
-    var acceptBodyTask = acceptBodyTaskList.get(0);
+    SubTask acceptBodyTask = acceptBodyTaskList.get(0);
     employeeService.completeSubTask(acceptBodyTask.getSubTaskId(), taskList.get(0).getEmployee());
     acceptBodyTask = subTaskRepository.findById(acceptBodyTask.getSubTaskId()).orElse(null);
     assert acceptBodyTask != null;
     assertThat(acceptBodyTask.isComplete()).isTrue();
 
-    var payments = paymentRepository.findAllByBodyOrder(createdBodyOrder);
-    var body = bodyRepository.findBodyByPayment(payments.get(0));
+    List<Payment> payments = paymentRepository.findAllByBodyOrder(createdBodyOrder);
+    Optional<Body> body = bodyRepository.findBodyByPayment(payments.get(0));
     body.ifPresent(value -> barCode = value.getBarcode());
     assertThat(barCode).isNotEmpty();
   }
@@ -217,8 +223,8 @@ class BusinessProcessTest {
 
   void putBodyInFreeze() {
     printBarCode(); //1
-    var employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
-    var taskList = new ArrayList<Task>();
+    List<Employee> employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
+    ArrayList<Task> taskList = new ArrayList<Task>();
 
     employees.forEach(
         e -> taskList.addAll(employeeService.getCurrentDailyTasks(e)
@@ -228,12 +234,12 @@ class BusinessProcessTest {
                     t.getTaskType())).collect(Collectors.toList())));
     assertThat(taskList).hasSize(1);
 
-    var pickUpTask = taskList.get(0);
-    var acceptBodyTaskList = pickUpTask.getSubTasks().stream()
+    Task pickUpTask = taskList.get(0);
+    List<SubTask> acceptBodyTaskList = pickUpTask.getSubTasks().stream()
         .filter(subTask -> PUT_IN_FRIDGE.equals(subTask.getSubTaskType())).collect(Collectors.toList());
     assertThat(acceptBodyTaskList).hasSize(1);
 
-    var acceptBodyTask = acceptBodyTaskList.get(0);
+    SubTask acceptBodyTask = acceptBodyTaskList.get(0);
     employeeService.completeSubTask(acceptBodyTask.getSubTaskId(), taskList.get(0).getEmployee());
     acceptBodyTask = subTaskRepository.findById(acceptBodyTask.getSubTaskId()).orElse(null);
     assert acceptBodyTask != null;
@@ -245,8 +251,8 @@ class BusinessProcessTest {
 
   void groomBody() {
     putBodyInFreeze(); //1
-    var employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
-    var taskList = new ArrayList<Task>();
+    List<Employee> employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
+    ArrayList<Task> taskList = new ArrayList<Task>();
 
     employees.forEach(
         e -> taskList.addAll(employeeService.getCurrentDailyTasks(e)
@@ -256,8 +262,8 @@ class BusinessProcessTest {
                     t.getTaskType())).collect(Collectors.toList())));
     assertThat(taskList).hasSize(1);
 
-    var groomTask = taskList.get(0);
-    for (var sub : groomTask.getSubTasks()){
+    Task groomTask = taskList.get(0);
+    for (SubTask sub : groomTask.getSubTasks()){
       employeeService.completeSubTask(sub.getSubTaskId(), sub.getParent().getEmployee());
     }
     assertThat(taskRepository.findAllByIsComplete(false)).hasSize(1);
@@ -267,15 +273,15 @@ class BusinessProcessTest {
 
   void loginPigMaster() {
     groomBody(); //1
-    var employee = employeeRepository.findAllByEmployeeRole(EmployeeRole.PIG_MASTER).get(0);
+    Employee employee = employeeRepository.findAllByEmployeeRole(EmployeeRole.PIG_MASTER).get(0);
     assertThat(authService.authenticate(employee.getName())).isBase64();
   }
 
 
   void feedPigs() {
     loginPigMaster(); //1
-    var employees = employeeService.getEmployeesByRole(EmployeeRole.PIG_MASTER);
-    var taskList = new ArrayList<Task>();
+    List<Employee> employees = employeeService.getEmployeesByRole(EmployeeRole.PIG_MASTER);
+    ArrayList<Task> taskList = new ArrayList<Task>();
 
     employees.forEach(
         e -> taskList.addAll(employeeService.getCurrentDailyTasks(e)
@@ -285,7 +291,7 @@ class BusinessProcessTest {
                     t.getTaskType())).collect(Collectors.toList())));
     assertThat(taskList).hasSize(1);
 
-    var feedTask = taskList.get(0);
+    Task feedTask = taskList.get(0);
     feedTask.getSubTasks().forEach(subTask ->
         employeeService.completeSubTask(subTask.getSubTaskId(), subTask.getParent().getEmployee()));
     assertThat(taskRepository.findAllByIsComplete(false)).isEmpty();
@@ -294,7 +300,7 @@ class BusinessProcessTest {
 
   void checkBodyStatus() {
     feedPigs(); //1
-    var body = bodyService.getBodyByBarcode(barCode).orElseThrow();
+    Body body = bodyService.getBodyByBarcode(barCode).orElseThrow();
     assertThat(body.getState()).isEqualTo(BodyState.FED);
   }
 }

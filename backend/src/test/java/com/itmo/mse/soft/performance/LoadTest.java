@@ -9,6 +9,7 @@ import com.itmo.mse.soft.SoftApplication;
 import com.itmo.mse.soft.TestHelper;
 import com.itmo.mse.soft.api.hydra.OrderAPI;
 import com.itmo.mse.soft.entity.BodyState;
+import com.itmo.mse.soft.entity.Employee;
 import com.itmo.mse.soft.entity.EmployeeRole;
 import com.itmo.mse.soft.order.BodyOrder;
 import com.itmo.mse.soft.order.OrderManager;
@@ -23,11 +24,13 @@ import com.itmo.mse.soft.repository.TaskRepository;
 import com.itmo.mse.soft.service.AuthService;
 import com.itmo.mse.soft.service.BodyService;
 import com.itmo.mse.soft.service.EmployeeService;
+import com.itmo.mse.soft.task.SubTask;
 import com.itmo.mse.soft.task.Task;
 import com.itmo.mse.soft.task.TaskType;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.AllArgsConstructor;
@@ -97,14 +100,14 @@ public class LoadTest extends AbstractBenchmark {
 
   void loginGroomer() {
     reserveSlot();
-    var employee = employeeRepository.findAllByEmployeeRole(EmployeeRole.GROOMER).get(0);
+    Employee employee = employeeRepository.findAllByEmployeeRole(EmployeeRole.GROOMER).get(0);
   }
 
 
   void acceptBody() {
     loginGroomer(); //1
-    var employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
-    var taskList = new ArrayList<Task>();
+    List<Employee> employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
+    ArrayList<Task> taskList = new ArrayList<Task>();
     employees.forEach(
         e -> taskList.addAll(employeeService.getCurrentDailyTasks(e)
             .stream()
@@ -119,11 +122,11 @@ public class LoadTest extends AbstractBenchmark {
                     t.getTaskType())).collect(Collectors.toList())));
 
     if (taskList.size() > 0) {
-      var pickUpTask = taskList.get(0);
-      var acceptBodyTaskList = pickUpTask.getSubTasks().stream()
+      Task pickUpTask = taskList.get(0);
+      List<SubTask> acceptBodyTaskList = pickUpTask.getSubTasks().stream()
           .filter(subTask -> PICKUP_FROM_CUSTOMER.equals(subTask.getSubTaskType())).collect(Collectors.toList());
 
-      var acceptBodyTask = acceptBodyTaskList.get(0);
+      SubTask acceptBodyTask = acceptBodyTaskList.get(0);
       employeeService.completeSubTask(acceptBodyTask.getSubTaskId(), taskList.get(0).getEmployee());
       acceptBodyTask = subTaskRepository.findById(acceptBodyTask.getSubTaskId()).orElse(null);
     }
@@ -133,8 +136,8 @@ public class LoadTest extends AbstractBenchmark {
 
   void printBarCode() {
     acceptBody(); //1
-    var employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
-    var taskList = new ArrayList<Task>();
+    List<Employee> employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
+    ArrayList<Task> taskList = new ArrayList<Task>();
     employees.forEach(
         e -> taskList.addAll(employeeService.getCurrentDailyTasks(e)
             .stream()
@@ -143,11 +146,11 @@ public class LoadTest extends AbstractBenchmark {
                     t.getTaskType())).collect(Collectors.toList())));
 
     if (taskList.size() > 0) {
-      var pickUpTask = taskList.get(0);
-      var acceptBodyTaskList = pickUpTask.getSubTasks().stream()
+      Task pickUpTask = taskList.get(0);
+      List<SubTask> acceptBodyTaskList = pickUpTask.getSubTasks().stream()
           .filter(subTask -> PRINT_BARCODE.equals(subTask.getSubTaskType())).collect(Collectors.toList());
 
-      var acceptBodyTask = acceptBodyTaskList.get(0);
+      SubTask acceptBodyTask = acceptBodyTaskList.get(0);
       employeeService.completeSubTask(acceptBodyTask.getSubTaskId(), taskList.get(0).getEmployee());
       acceptBodyTask = subTaskRepository.findById(acceptBodyTask.getSubTaskId()).orElse(null);
     }
@@ -156,8 +159,8 @@ public class LoadTest extends AbstractBenchmark {
 
   void putBodyInFreeze() {
     printBarCode(); //1
-    var employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
-    var taskList = new ArrayList<Task>();
+    List<Employee> employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
+    ArrayList<Task> taskList = new ArrayList<Task>();
     employees.forEach(
         e -> taskList.addAll(employeeService.getCurrentDailyTasks(e)
             .stream()
@@ -166,11 +169,11 @@ public class LoadTest extends AbstractBenchmark {
                     t.getTaskType())).collect(Collectors.toList())));
 
     if (taskList.size() > 0) {
-      var pickUpTask = taskList.get(0);
-      var acceptBodyTaskList = pickUpTask.getSubTasks().stream()
+      Task pickUpTask = taskList.get(0);
+      List<SubTask> acceptBodyTaskList = pickUpTask.getSubTasks().stream()
           .filter(subTask -> PUT_IN_FRIDGE.equals(subTask.getSubTaskType())).collect(Collectors.toList());
 
-      var acceptBodyTask = acceptBodyTaskList.get(0);
+      SubTask acceptBodyTask = acceptBodyTaskList.get(0);
       employeeService.completeSubTask(acceptBodyTask.getSubTaskId(), taskList.get(0).getEmployee());
       acceptBodyTask = subTaskRepository.findById(acceptBodyTask.getSubTaskId()).orElse(null);
     }
@@ -181,8 +184,8 @@ public class LoadTest extends AbstractBenchmark {
 
   void groomBody() {
     putBodyInFreeze(); //1
-    var employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
-    var taskList = new ArrayList<Task>();
+    List<Employee> employees = employeeService.getEmployeesByRole(EmployeeRole.GROOMER);
+    ArrayList<Task> taskList = new ArrayList<Task>();
     employees.forEach(
         e -> taskList.addAll(employeeService.getCurrentDailyTasks(e)
             .stream()
@@ -191,8 +194,8 @@ public class LoadTest extends AbstractBenchmark {
                     t.getTaskType())).collect(Collectors.toList())));
 
     if (taskList.size() > 0) {
-      var groomTask = taskList.get(0);
-      for (var sub : groomTask.getSubTasks()) {
+      Task groomTask = taskList.get(0);
+      for (SubTask sub : groomTask.getSubTasks()) {
         employeeService.completeSubTask(sub.getSubTaskId(), sub.getParent().getEmployee());
       }
     }
@@ -202,15 +205,15 @@ public class LoadTest extends AbstractBenchmark {
 
   void loginPigMaster() {
     groomBody(); //1
-    var employee = employeeRepository.findAllByEmployeeRole(EmployeeRole.PIG_MASTER).get(0);
+    Employee employee = employeeRepository.findAllByEmployeeRole(EmployeeRole.PIG_MASTER).get(0);
 
   }
 
 
   void feedPigs() {
     loginPigMaster(); //1
-    var employees = employeeService.getEmployeesByRole(EmployeeRole.PIG_MASTER);
-    var taskList = new ArrayList<Task>();
+    List<Employee> employees = employeeService.getEmployeesByRole(EmployeeRole.PIG_MASTER);
+    ArrayList<Task> taskList = new ArrayList<Task>();
     employees.forEach(
         e -> taskList.addAll(employeeService.getCurrentDailyTasks(e)
             .stream()
@@ -219,7 +222,7 @@ public class LoadTest extends AbstractBenchmark {
                     t.getTaskType())).collect(Collectors.toList())));
 
     if (taskList.size() > 0) {
-      var feedTask = taskList.get(0);
+      Task feedTask = taskList.get(0);
       feedTask.getSubTasks().forEach(subTask ->
           employeeService.completeSubTask(subTask.getSubTaskId(), subTask.getParent().getEmployee()));
     }

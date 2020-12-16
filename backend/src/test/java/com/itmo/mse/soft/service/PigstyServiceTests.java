@@ -1,6 +1,8 @@
 package com.itmo.mse.soft.service;
 
 import com.itmo.mse.soft.TestHelper;
+import com.itmo.mse.soft.entity.Body;
+import com.itmo.mse.soft.entity.Employee;
 import com.itmo.mse.soft.entity.EmployeeRole;
 import com.itmo.mse.soft.entity.Pigsty;
 import com.itmo.mse.soft.repository.BodyRepository;
@@ -42,16 +44,16 @@ public class PigstyServiceTests {
 
     @Test
     void shouldReservePigsty() {
-        var employee = testHelper.createEmployee(EmployeeRole.PIG_MASTER);
-        var body = testHelper.createBody();
+        Employee employee = testHelper.createEmployee(EmployeeRole.PIG_MASTER);
+        Body body = testHelper.createBody();
         employeeRepository.save(employee);
         bodyRepository.save(body);
 
-        var scheduleEntry = ScheduleEntry.builder()
+        ScheduleEntry scheduleEntry = ScheduleEntry.builder()
                 .timeStart(testHelper.getTimeAt(10, 0))
                 .timeEnd(testHelper.getTimeAt(12, 0))
                 .build();
-        var task = Task.builder()
+        Task task = Task.builder()
                 .scheduleEntry(scheduleEntry)
                 .body(body)
                 .employee(employee)
@@ -60,7 +62,7 @@ public class PigstyServiceTests {
 
         taskRepository.save(task);
 
-        var pigsty = Pigsty.builder()
+        Pigsty pigsty = Pigsty.builder()
                 .pigAmount(32)
                 .pigstyNumber(39391)
                 .build();
@@ -70,7 +72,7 @@ public class PigstyServiceTests {
         pigstyService.reservePigsty(pigsty, task);
         assertThat(task.getPigsty()).isEqualToComparingFieldByField(pigsty);
 
-        var otherTask = Task.builder()
+        Task otherTask = Task.builder()
                 .scheduleEntry(
                         ScheduleEntry.builder()
                         .timeStart(testHelper.getTimeAt(11, 30))

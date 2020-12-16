@@ -1,6 +1,7 @@
 package com.itmo.mse.soft.service;
 
 import com.itmo.mse.soft.TestHelper;
+import com.itmo.mse.soft.entity.Employee;
 import com.itmo.mse.soft.entity.EmployeeRole;
 import com.itmo.mse.soft.repository.EmployeeRepository;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ public class AuthServiceTests {
 
     @Test
     void shouldAuthorize() {
-        var employee = testHelper.createEmployee(EmployeeRole.GROOMER);
+        Employee employee = testHelper.createEmployee(EmployeeRole.GROOMER);
         employeeRepository.save(employee);
 
         assertThat(authService.authenticate(employee.getName())).isBase64();
@@ -33,10 +34,10 @@ public class AuthServiceTests {
 
     @Test
     void shouldReturnEmployee() {
-        var employee = testHelper.createEmployee(EmployeeRole.GROOMER);
+        Employee employee = testHelper.createEmployee(EmployeeRole.GROOMER);
         employeeRepository.save(employee);
 
-        var token = authService.authenticate(employee.getName());
+        String token = authService.authenticate(employee.getName());
         assertThat(authService.getEmployeeByToken(token).getEmployeeId()).isEqualByComparingTo(employee.getEmployeeId());
     }
 

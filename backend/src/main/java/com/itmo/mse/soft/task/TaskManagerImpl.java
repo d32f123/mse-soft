@@ -108,7 +108,7 @@ public class TaskManagerImpl implements TaskManager {
 
   @Override
   public synchronized Task completeTask(UUID taskId, UUID employeeId) {
-    var task = taskRepository.findById(taskId).orElseThrow();
+    Task task = taskRepository.findById(taskId).orElseThrow();
     if (!task.getEmployee().getEmployeeId().equals(employeeId)) {
       return null;
     }
@@ -124,8 +124,8 @@ public class TaskManagerImpl implements TaskManager {
 
   @Override
   public synchronized Task completeSubTask(UUID subTaskId, UUID employeeId) {
-    var subTask = subTaskRepository.findById(subTaskId).orElseThrow();
-    var task = subTask.getParent();
+    SubTask subTask = subTaskRepository.findById(subTaskId).orElseThrow();
+    Task task = subTask.getParent();
     if (!task.getEmployee().getEmployeeId().equals(employeeId)) {
       return null;
     }
@@ -176,7 +176,7 @@ public class TaskManagerImpl implements TaskManager {
 
   @Override
   public Task scheduleFeedingTaskAt(Instant start, Pigsty pigsty) {
-    var task = buildTaskAt(start, TaskType.REGULAR_FEED);
+    Task task = buildTaskAt(start, TaskType.REGULAR_FEED);
     if (task == null) {
       return null;
     }
@@ -192,7 +192,7 @@ public class TaskManagerImpl implements TaskManager {
 
   @Override
   public Task scheduleFeedingTask(Pigsty pigsty, Instant start) {
-    var task = buildTaskSomewhere(start, TaskType.REGULAR_FEED);
+    Task task = buildTaskSomewhere(start, TaskType.REGULAR_FEED);
     if (task == null) {
       return null;
     }
@@ -211,13 +211,15 @@ public class TaskManagerImpl implements TaskManager {
     Instant dayInstant = day.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
     Duration nextDay = Duration.ofDays(1);
 
-    var dailyTasks = taskRepository
+    List<Task> dailyTasks = taskRepository
         .findIntersectionsByEmployeeIdAndTime(employeeId, dayInstant, dayInstant.plus(nextDay));
-    var isGroomer = employeeService.getById(employeeId).orElseThrow().getEmployeeRole().equals(EmployeeRole.GROOMER);
+    boolean isGroomer = employeeService.getById(employeeId).orElseThrow().getEmployeeRole().equals(EmployeeRole.GROOMER);
     if (isGroomer) {
-      var possible = List.of(AWAITING_RECEIVAL, IN_RECEIVAL);
+      List<BodyState> possible = new ArrayList<>();
+      possible.add(AWAITING_RECEIVAL);
+      possible.add(IN_RECEIVAL);
 
-      var goodDailyTasks = dailyTasks.stream()
+      List<Task> goodDailyTasks = dailyTasks.stream()
           .filter(task -> (task.getBody().getPayment().getBodyOrder().getPaymentAmount().intValue() == 0))
           .filter(task ->
               (!possible.contains(task.getBody().getState())) ||
@@ -228,9 +230,10 @@ public class TaskManagerImpl implements TaskManager {
       return goodDailyTasks;
     }
     else {
-      var possible = List.of(IN_FEEDING, FED, GROOMED);
-
-      var goodDailyTasks = dailyTasks.stream()
+      List<BodyState> possible = new ArrayList<>();
+      possible.add(IN_FEEDING);
+      possible.add(GROOMED);
+      List<Task> goodDailyTasks = dailyTasks.stream()
           .filter(task -> (possible.contains(task.getBody().getState())))
           .collect(Collectors.toList());
       return goodDailyTasks;
@@ -238,9 +241,9 @@ public class TaskManagerImpl implements TaskManager {
   }
 
   private Task buildTask(Instant start, TaskType taskType, Employee employee, Pigsty pigsty) {
-    var duration = taskDurationMap.get(taskType);
-    var subTaskTypes = taskToSubTaskMap.get(taskType);
-    var task = Task.builder()
+    Duration duration = taskDurationMap.get(taskType);
+    List<SubTaskType> subTaskTypes = taskToSubTaskMap.get(taskType);
+    Task task = Task.builder()
         .employee(employee)
         .scheduleEntry(
             ScheduleEntry.builder()
@@ -251,10 +254,10 @@ public class TaskManagerImpl implements TaskManager {
         .pigsty(pigsty)
         .subTasks(new ArrayList<>()).build();
 
-    var subOffset = Duration.ZERO;
-    for (var subTaskType : subTaskTypes) {
-      var subTaskDuration = subTaskDurationMap.get(subTaskType);
-      var subTask = SubTask.builder()
+    Duration subOffset = Duration.ZERO;
+    for (SubTaskType subTaskType : subTaskTypes) {
+      Duration subTaskDuration = subTaskDurationMap.get(subTaskType);
+      SubTask subTask = SubTask.builder()
           .parent(task)
           .isComplete(false)
           .subTaskType(subTaskType)
@@ -271,9 +274,9 @@ public class TaskManagerImpl implements TaskManager {
   }
 
   private Task buildTaskAt(Instant start, TaskType taskType) {
-    var duration = taskDurationMap.get(taskType);
-    var role = taskToRoleMap.get(taskType);
-    var employeeMap = getEmployeeMapByRole(role);
+    Duration duration = taskDurationMap.get(taskType);
+    EmployeeRole role = taskToRoleMap.get(taskType);
+    Map<UUID, Employee> employeeMap = getEmployeeMapByRole(role);
     if (employeeMap.isEmpty()) {
       log.warn("No employees of role '{}', cannot schedule task of type '{}'", role, taskType);
       return null;
@@ -282,12 +285,12 @@ public class TaskManagerImpl implements TaskManager {
     if (taskType.isFeedingTask && pigstyMap.isEmpty()) {
       log.warn("No pigsties found, cannot schedule task of type '{}'", taskType);
     }
-    var eventQueue = buildEventQueue(start, start.plus(duration), role);
+    Queue<InstantWithMeta> eventQueue = buildEventQueue(start, start.plus(duration), role);
 
-    var availableEmployees = new HashSet<>(employeeMap.keySet());
+    HashSet<UUID> availableEmployees = new HashSet<>(employeeMap.keySet());
     Set<UUID> availablePigsties = taskType.isFeedingTask ? new HashSet<>(pigstyMap.keySet()) : Collections.emptySet();
     while (!eventQueue.isEmpty()) {
-      var instant = eventQueue.poll();
+      InstantWithMeta instant = eventQueue.poll();
       if (instant.instant.isAfter(start.plus(duration))) {
         break;
       }
@@ -317,8 +320,8 @@ public class TaskManagerImpl implements TaskManager {
 
 
   private Task buildTaskSomewhere(Instant start, TaskType taskType) {
-    var role = taskToRoleMap.get(taskType);
-    var employeeMap = getEmployeeMapByRole(role);
+    EmployeeRole role = taskToRoleMap.get(taskType);
+    Map<UUID, Employee> employeeMap = getEmployeeMapByRole(role);
     if (employeeMap.isEmpty()) {
       log.warn("No employees of role '{}', cannot schedule task '{}'", role, taskType);
       return null;
@@ -329,17 +332,17 @@ public class TaskManagerImpl implements TaskManager {
       log.warn("No pigsties found, cannot schedule task of type '{}'", taskType);
     }
 
-    var eventQueue = buildEventQueue(
+    Queue<InstantWithMeta> eventQueue = buildEventQueue(
         start,
         LocalDateTime.of(2070, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
         role);
-    var duration = taskDurationMap.get(taskType);
+    Duration duration = taskDurationMap.get(taskType);
 
-    var foundStart = start.plus(Duration.ZERO);
+    Instant foundStart = start.plus(Duration.ZERO);
     Set<UUID> possibleEmployees = new HashSet<>(employeeMap.keySet());
     Set<UUID> possiblePigsties = taskType.isFeedingTask ? new HashSet<>(pigstyMap.keySet()) : Collections.emptySet();
     while (!eventQueue.isEmpty()) {
-      var instant = eventQueue.poll();
+      InstantWithMeta instant = eventQueue.poll();
       if (foundStart.plus(duration).isBefore(instant.instant) && !possibleEmployees.isEmpty()
           && (!taskType.isFeedingTask || !possiblePigsties.isEmpty())) {
         break;
@@ -363,14 +366,14 @@ public class TaskManagerImpl implements TaskManager {
     }
     assert possibleEmployees.size() != 0;
     assert !taskType.isFeedingTask || !possiblePigsties.isEmpty();
-    var chosenEmployee = employeeMap.get(possibleEmployees.iterator().next());
-    var chosenPigsty = taskType.isFeedingTask ? pigstyMap.get(possiblePigsties.iterator().next()) : null;
+    Employee chosenEmployee = employeeMap.get(possibleEmployees.iterator().next());
+    Pigsty chosenPigsty = taskType.isFeedingTask ? pigstyMap.get(possiblePigsties.iterator().next()) : null;
 
     return buildTask(foundStart, taskType, chosenEmployee, chosenPigsty);
   }
 
   private Task schedulePickupTask(Instant start, Body body) {
-    var task = buildTaskAt(start, PICKUP);
+    Task task = buildTaskAt(start, PICKUP);
 
     if (task == null) {
       return null;
@@ -385,7 +388,7 @@ public class TaskManagerImpl implements TaskManager {
   }
 
   private Task scheduleTask(TaskType taskType, Body body, Instant searchFrom) {
-    var task = buildTaskSomewhere(searchFrom, taskType);
+    Task task = buildTaskSomewhere(searchFrom, taskType);
     if (task == null) {
       return null;
     }
@@ -404,9 +407,9 @@ public class TaskManagerImpl implements TaskManager {
   }
 
   private Queue<InstantWithMeta> buildEventQueue(Instant start, Instant to, EmployeeRole employeeRole) {
-    var eventQueue = new PriorityBlockingQueue<InstantWithMeta>(20, Comparator.comparing(x -> x.instant));
-    var pigstyCoolDown = pigstyService.getPigstyCoolDownDuration();
-    var actualStart = employeeRole == EmployeeRole.PIG_MASTER ? start.minus(pigstyCoolDown) : start;
+    PriorityBlockingQueue<InstantWithMeta> eventQueue = new PriorityBlockingQueue<InstantWithMeta>(20, Comparator.comparing(x -> x.instant));
+    Duration pigstyCoolDown = pigstyService.getPigstyCoolDownDuration();
+    Instant actualStart = employeeRole == EmployeeRole.PIG_MASTER ? start.minus(pigstyCoolDown) : start;
     taskRepository.findIntersectionsByEmployeeRoleAndTime(employeeRole, actualStart, to)
         .forEach(task -> {
           eventQueue.add(InstantWithMeta.builder()
@@ -432,14 +435,14 @@ public class TaskManagerImpl implements TaskManager {
   }
 
   private Map<UUID, Employee> getEmployeeMapByRole(EmployeeRole employeeRole) {
-    var employeeMap = new HashMap<UUID, Employee>();
+    HashMap<UUID, Employee> employeeMap = new HashMap<UUID, Employee>();
     employeeService.getEmployeesByRole(employeeRole)
         .forEach(employee -> employeeMap.put(employee.getEmployeeId(), employee));
     return employeeMap;
   }
 
   private Map<UUID, Pigsty> getPigstyMap() {
-    var pigstyMap = new HashMap<UUID, Pigsty>();
+    HashMap<UUID, Pigsty> pigstyMap = new HashMap<UUID, Pigsty>();
     pigstyService.getAll().forEach(
         pigsty -> pigstyMap.put(pigsty.getPigstyId(), pigsty)
     );

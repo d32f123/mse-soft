@@ -66,12 +66,12 @@ public class RepositoryTests {
 
     @Test
     void savesAndLoadsBody() {
-        var order = BodyOrder.builder()
+        BodyOrder order = BodyOrder.builder()
                 .paymentAmount(new BigDecimal("123.5"))
                 .pickupInstant(getInstant())
                 .build();
 
-        var payment = Payment.builder()
+        Payment payment = Payment.builder()
                 .bitcoinAddress("someaddress")
                 .creationInstant(getInstant())
                 .bodyOrder(order)
@@ -94,7 +94,7 @@ public class RepositoryTests {
         Employee employee = Employee.builder().name("Shureek").employeeRole(EmployeeRole.GROOMER).build();
 
         employeeRepository.save(employee);
-        var savedBody = employeeRepository.findById(employee.getEmployeeId()).orElseThrow();
+        Employee savedBody = employeeRepository.findById(employee.getEmployeeId()).orElseThrow();
 
         assertThat(savedBody).isEqualToComparingFieldByField(employee);
     }
@@ -107,7 +107,7 @@ public class RepositoryTests {
 
         scheduleEntryRepository.save(scheduleEntry);
 
-        var loadedEntry = scheduleEntryRepository.findById(scheduleEntry.getScheduleEntryId()).orElseThrow();
+        ScheduleEntry loadedEntry = scheduleEntryRepository.findById(scheduleEntry.getScheduleEntryId()).orElseThrow();
         assertThat(loadedEntry).isEqualToIgnoringGivenFields(scheduleEntry, "subEntries");
     }
 
@@ -118,8 +118,8 @@ public class RepositoryTests {
                 .pickupInstant(getInstant())
                 .build();
 
-        var order2 = orderRepository.save(bodyOrder);
-        var loadedOrder = orderRepository.findById(bodyOrder.getOrderId()).orElseThrow();
+        BodyOrder order2 = orderRepository.save(bodyOrder);
+        BodyOrder loadedOrder = orderRepository.findById(bodyOrder.getOrderId()).orElseThrow();
 
         assertThat(loadedOrder).isEqualToIgnoringGivenFields(bodyOrder, "paymentAmount");
         assertThat(loadedOrder.getPaymentAmount()).isEqualTo(bodyOrder.getPaymentAmount());
@@ -139,7 +139,7 @@ public class RepositoryTests {
                 .build();
 
         paymentRepository.save(payment);
-        var loadedPayment = paymentRepository.findById(payment.getPaymentId()).orElseThrow();
+        Payment loadedPayment = paymentRepository.findById(payment.getPaymentId()).orElseThrow();
         assertThat(loadedPayment).isEqualToIgnoringGivenFields(payment, "order");
         assertThat(loadedPayment.getBodyOrder()).isNotNull();
         assertThat(loadedPayment.getBodyOrder()).isEqualToIgnoringGivenFields(bodyOrder, "paymentAmount");
@@ -147,25 +147,25 @@ public class RepositoryTests {
 
     @Test
     void savesAndLoadsPigsty() {
-        var pigsty = Pigsty.builder()
+        Pigsty pigsty = Pigsty.builder()
                 .pigstyNumber(0)
                 .pigAmount(3)
                 .build();
         pigstyRepository.save(pigsty);
 
-        var loadedPigsty = pigstyRepository.findById(pigsty.getPigstyId()).orElseThrow();
+        Pigsty loadedPigsty = pigstyRepository.findById(pigsty.getPigstyId()).orElseThrow();
         assertThat(loadedPigsty).isEqualToComparingFieldByField(pigsty);
     }
 
     @Test
     void savesAndLoadsTask() {
-        var employee = Employee.builder()
+        Employee employee = Employee.builder()
                 .name("Vasya")
                 .employeeRole(EmployeeRole.GROOMER)
                 .build();
         employeeRepository.save(employee);
 
-        var scheduleEntry = ScheduleEntry.builder()
+        ScheduleEntry scheduleEntry = ScheduleEntry.builder()
                 .timeStart(getInstant())
                 .timeEnd(getInstant()).build();
 
@@ -183,7 +183,7 @@ public class RepositoryTests {
                 .build();
         bodyRepository.save(body);
 
-        var pigsty = Pigsty.builder()
+        Pigsty pigsty = Pigsty.builder()
                 .pigAmount(6)
                 .pigstyNumber(0)
                 .build();
@@ -214,7 +214,7 @@ public class RepositoryTests {
         );
         taskRepository.save(task);
 
-        var loadedTask = taskRepository.findById(task.getTaskId()).orElseThrow();
+        Task loadedTask = taskRepository.findById(task.getTaskId()).orElseThrow();
         assertThat(loadedTask).isEqualToIgnoringGivenFields(task,
                 "subTasks", "scheduleEntry", "subTasks");
         assertThat(loadedTask.getSubTasks().isEmpty()).isFalse();
@@ -225,12 +225,12 @@ public class RepositoryTests {
 
     @Test
     void savesAndLoadsSubTask() {
-        var scheduleEntry = ScheduleEntry.builder()
+        ScheduleEntry scheduleEntry = ScheduleEntry.builder()
                 .timeStart(getInstant())
                 .timeEnd(getInstant())
                 .build();
 
-        var employee = Employee.builder()
+        Employee employee = Employee.builder()
                 .name("Vasya")
                 .employeeRole(EmployeeRole.GROOMER)
                 .build();
@@ -257,7 +257,7 @@ public class RepositoryTests {
                 .build();
         subTaskRepository.save(subTask);
 
-        var loadedSubTask = subTaskRepository.findById(subTask.getSubTaskId()).orElseThrow();
+        SubTask loadedSubTask = subTaskRepository.findById(subTask.getSubTaskId()).orElseThrow();
         assertThat(loadedSubTask).isEqualToIgnoringGivenFields(subTask,
                 "parent", "scheduleEntry");
         assertThat(loadedSubTask.getParent()).isNotNull();
@@ -270,26 +270,26 @@ public class RepositoryTests {
 
     @Test
     void shouldFindTaskInBetween() {
-        var pigsty = Pigsty.builder()
+        Pigsty pigsty = Pigsty.builder()
                 .pigstyNumber(123)
                 .pigAmount(30).build();
         pigstyRepository.save(pigsty);
 
-        var employee = Employee.builder()
+        Employee employee = Employee.builder()
                 .name("vasya")
                 .employeeRole(EmployeeRole.PIG_MASTER)
                 .build();
         employeeRepository.save(employee);
 
-        var entry = ScheduleEntry.builder()
+        ScheduleEntry entry = ScheduleEntry.builder()
                 .timeStart(testHelper.getDayAt(3, 12, 2020))
                 .timeEnd(testHelper.getDayAt(6, 12, 2020))
                 .build();
 
-        var body = createBody();
+        Body body = createBody();
         bodyRepository.save(body);
 
-        var task = Task.builder()
+        Task task = Task.builder()
                 .taskType(TaskType.FEED)
                 .isComplete(false)
                 .employee(employee)

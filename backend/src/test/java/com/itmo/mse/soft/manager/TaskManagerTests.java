@@ -2,6 +2,7 @@ package com.itmo.mse.soft.manager;
 
 import com.itmo.mse.soft.TableCleaner;
 import com.itmo.mse.soft.TestHelper;
+import com.itmo.mse.soft.entity.Body;
 import com.itmo.mse.soft.entity.BodyState;
 import com.itmo.mse.soft.entity.Employee;
 import com.itmo.mse.soft.entity.EmployeeRole;
@@ -9,7 +10,9 @@ import com.itmo.mse.soft.entity.Pigsty;
 import com.itmo.mse.soft.repository.BodyRepository;
 import com.itmo.mse.soft.repository.EmployeeRepository;
 import com.itmo.mse.soft.repository.PigstyRepository;
+import com.itmo.mse.soft.task.Task;
 import com.itmo.mse.soft.task.TaskManager;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,16 +48,16 @@ public class TaskManagerTests {
     @Test
     void shouldFindDailyTasks() {
         tableCleaner.clearTables();
-        var employee = Employee.builder()
+        Employee employee = Employee.builder()
                 .name("someguy")
                 .employeeRole(EmployeeRole.GROOMER)
                 .build();
-        var anotherEmployee = Employee.builder()
+        Employee anotherEmployee = Employee.builder()
                 .name("groomer")
                 .employeeRole(EmployeeRole.PIG_MASTER)
                 .build();
-        var body = testHelper.createBody(BodyState.AWAITING_RECEIVAL);
-        var pigsty = Pigsty.builder()
+        Body body = testHelper.createBody(BodyState.AWAITING_RECEIVAL);
+        Pigsty pigsty = Pigsty.builder()
                 .pigstyNumber(0)
                 .pigAmount(2)
                 .build();
@@ -65,8 +68,8 @@ public class TaskManagerTests {
 
         pigstyRepository.save(pigsty);
 
-        var instance = testHelper.getTimeAt(12, 20);
-        var scheduled = taskManager.scheduleBody(instance, body);
+        Instant instance = testHelper.getTimeAt(12, 20);
+        boolean scheduled = taskManager.scheduleBody(instance, body);
         assertThat(scheduled).isTrue();
 
 
@@ -79,74 +82,74 @@ public class TaskManagerTests {
     @Test
     void shouldNotCreateTaskIfNoEmployeesAvailable() {
         tableCleaner.clearTables();
-        var employee = Employee.builder()
+        Employee employee = Employee.builder()
                 .name("someguy")
                 .employeeRole(EmployeeRole.GROOMER)
                 .build();
-        var anotherEmployee = Employee.builder()
+        Employee anotherEmployee = Employee.builder()
                 .name("groomer")
                 .employeeRole(EmployeeRole.PIG_MASTER)
                 .build();
 
         employeeRepository.save(employee);
         employeeRepository.save(anotherEmployee);
-        var body = testHelper.createBody(BodyState.AWAITING_RECEIVAL);
+        Body body = testHelper.createBody(BodyState.AWAITING_RECEIVAL);
         bodyRepository.save(body);
-        var pigsty = Pigsty.builder()
+        Pigsty pigsty = Pigsty.builder()
                 .pigstyNumber(0)
                 .pigAmount(2)
                 .build();
         pigstyRepository.save(pigsty);
 
-        var instance = testHelper.getTimeAt(12, 20);
-        var scheduled = taskManager.scheduleBody(instance, body);
+        Instant instance = testHelper.getTimeAt(12, 20);
+        boolean scheduled = taskManager.scheduleBody(instance, body);
         assertThat(scheduled).isTrue();
 
-        var anotherScheduled = taskManager.scheduleBody(instance.plus(Duration.ofMinutes(20)), body);
+        boolean anotherScheduled = taskManager.scheduleBody(instance.plus(Duration.ofMinutes(20)), body);
         assertThat(anotherScheduled).isFalse();
     }
 
     @Test
     void shouldReturnNullWhenNoEmployees() {
         tableCleaner.clearTables();
-        var body = testHelper.createBody(BodyState.GROOMED);
+        Body body = testHelper.createBody(BodyState.GROOMED);
         assertThat(taskManager.scheduleBody(Instant.now(), body)).isFalse();
     }
 
     @Test
     void shouldNotReserveOnSameTime() {
         tableCleaner.clearTables();
-        var employee = Employee.builder()
+        Employee employee = Employee.builder()
                 .name("someguy")
                 .employeeRole(EmployeeRole.GROOMER)
                 .build();
-        var anotherEmployee = Employee.builder()
+        Employee anotherEmployee = Employee.builder()
                 .name("groomer")
                 .employeeRole(EmployeeRole.PIG_MASTER)
                 .build();
 
         employeeRepository.save(employee);
         employeeRepository.save(anotherEmployee);
-        var body = testHelper.createBody(BodyState.AWAITING_RECEIVAL);
-        var anotherBody = testHelper.createBody(BodyState.AWAITING_RECEIVAL);
+        Body body = testHelper.createBody(BodyState.AWAITING_RECEIVAL);
+        Body anotherBody = testHelper.createBody(BodyState.AWAITING_RECEIVAL);
         bodyRepository.save(body);
         bodyRepository.save(anotherBody);
-        var pigsty = Pigsty.builder()
+        Pigsty pigsty = Pigsty.builder()
                 .pigstyNumber(0)
                 .pigAmount(2)
                 .build();
-        var anotherPigsty = Pigsty.builder()
+        Pigsty anotherPigsty = Pigsty.builder()
                 .pigstyNumber(1)
                 .pigAmount(5)
                 .build();
         pigstyRepository.save(pigsty);
         pigstyRepository.save(anotherPigsty);
 
-        var pickupInstant = testHelper.getTimeAt(13, 50);
+        Instant pickupInstant = testHelper.getTimeAt(13, 50);
         taskManager.scheduleBody(pickupInstant, body);
 
-        var firstTasks = taskManager.getDailyTasks(employee.getEmployeeId(), pickupInstant.atZone(ZoneOffset.UTC).toLocalDate());
-        var pigMasterTasks = taskManager.getDailyTasks(anotherEmployee.getEmployeeId(), pickupInstant.atZone(ZoneOffset.UTC).toLocalDate());
+        List<Task> firstTasks = taskManager.getDailyTasks(employee.getEmployeeId(), pickupInstant.atZone(ZoneOffset.UTC).toLocalDate());
+        List<Task> pigMasterTasks = taskManager.getDailyTasks(anotherEmployee.getEmployeeId(), pickupInstant.atZone(ZoneOffset.UTC).toLocalDate());
         assertThat(firstTasks).hasSize(2);
         assertThat(firstTasks.get(0).getScheduleEntry().getTimeEnd()).isBeforeOrEqualTo(
                 firstTasks.get(1).getScheduleEntry().getTimeStart()
@@ -155,8 +158,8 @@ public class TaskManagerTests {
         assertThat(taskManager.scheduleBody(pickupInstant, body)).isFalse();
 
         assertThat(taskManager.scheduleBody(pickupInstant.minus(Duration.ofMinutes(75)), body)).isTrue();
-        var newTasks = taskManager.getDailyTasks(employee.getEmployeeId(), pickupInstant.atZone(ZoneOffset.UTC).toLocalDate());
-        var pigNewTasks = taskManager.getDailyTasks(anotherEmployee.getEmployeeId(), pickupInstant.atZone(ZoneOffset.UTC).toLocalDate());
+        List<Task> newTasks = taskManager.getDailyTasks(employee.getEmployeeId(), pickupInstant.atZone(ZoneOffset.UTC).toLocalDate());
+        List<Task> pigNewTasks = taskManager.getDailyTasks(anotherEmployee.getEmployeeId(), pickupInstant.atZone(ZoneOffset.UTC).toLocalDate());
         assertThat(newTasks).hasSize(4);
         assertThat(newTasks.get(0).getScheduleEntry().getTimeStart()).isEqualTo(pickupInstant.minus(Duration.ofMinutes(75)));
         assertThat(newTasks.get(3).getScheduleEntry().getTimeStart()).isAfterOrEqualTo(firstTasks.get(1).getScheduleEntry().getTimeEnd());

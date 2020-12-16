@@ -58,44 +58,44 @@ public class BodyServiceTests {
 
     @Test
     void findByBarcode() {
-        var body = createBody();
+        Body body = createBody();
 
         bodyService.save(body);
 
-        var loadedBody = bodyService.getBodyByBarcode(body.getBarcode()).orElseThrow();
+        Body loadedBody = bodyService.getBodyByBarcode(body.getBarcode()).orElseThrow();
         assertThat(loadedBody).isEqualToIgnoringGivenFields(body, "payment");
     }
 
     @Test
     void findByPaymentId() {
-        var body = createBody();
+        Body body = createBody();
 
         bodyService.save(body);
 
-        var loadedBody = bodyService.getBodyByPaymentId(body.getPayment().getPaymentId()).orElseThrow();
+        Body loadedBody = bodyService.getBodyByPaymentId(body.getPayment().getPaymentId()).orElseThrow();
         assertThat(loadedBody).isEqualToIgnoringGivenFields(body, "payment");
     }
 
     @Test
     void shouldNotCreateBodyWhenNoEmployeesAvailable() {
         tableCleaner.clearTables();
-        var employee = Employee.builder()
+        Employee employee = Employee.builder()
                 .name("Vasyan")
                 .employeeRole(EmployeeRole.GROOMER)
                 .build();
-        var anotherEmployee = Employee.builder()
+        Employee anotherEmployee = Employee.builder()
                 .name("groomer")
                 .employeeRole(EmployeeRole.PIG_MASTER)
                 .build();
         employeeRepository.save(employee);
         employeeRepository.save(anotherEmployee);
-        var pigsty = Pigsty.builder()
+        Pigsty pigsty = Pigsty.builder()
                 .pigstyNumber(0)
                 .pigAmount(2)
                 .build();
         pigstyRepository.save(pigsty);
 
-        var payment = Payment.builder()
+        Payment payment = Payment.builder()
                 .bodyOrder(
                         BodyOrder.builder()
                         .paymentAmount(new BigDecimal("123.50"))
@@ -104,7 +104,7 @@ public class BodyServiceTests {
                 ).bitcoinAddress("asdf")
                 .creationInstant(Instant.now())
                 .build();
-        var anotherPayment = Payment.builder()
+        Payment anotherPayment = Payment.builder()
                 .bodyOrder(
                         BodyOrder.builder()
                         .paymentAmount(new BigDecimal("12344.50"))
@@ -114,10 +114,10 @@ public class BodyServiceTests {
                 .creationInstant(Instant.now())
                 .build();
 
-        var body = bodyService.createBody(payment);
+        Body body = bodyService.createBody(payment);
         assertThat(body).isNotNull();
 
-        var anotherBody = bodyService.createBody(anotherPayment);
+        Body anotherBody = bodyService.createBody(anotherPayment);
         assertThat(anotherBody).isNull();
     }
 
