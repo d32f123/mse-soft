@@ -30,12 +30,12 @@ public class AuthService {
         return authenticate(employeeName, employeeName);
     }
     public String authenticate(String employeeName, String password) {
-        var employee = employeeRepository.findByNameAndPassword(employeeName, password).orElse(null);
+        Employee employee = employeeRepository.findByNameAndPassword(employeeName, password).orElse(null);
         if (employee == null) {
             return null;
         }
 
-        var token = Token.builder()
+        Token token = Token.builder()
                 .employee(employee)
                 .expirationInstant(Instant.now().plus(Duration.ofMinutes(60)))
                 .build();
@@ -45,15 +45,15 @@ public class AuthService {
     }
 
     public void logout(String tokenBase){
-        var tokenId = new String(Base64.getUrlDecoder().decode(tokenBase), StandardCharsets.UTF_8);
-        var token = tokenRepository.findById(UUID.fromString(tokenId)).orElse(null);
+        String tokenId = new String(Base64.getUrlDecoder().decode(tokenBase), StandardCharsets.UTF_8);
+        Token token = tokenRepository.findById(UUID.fromString(tokenId)).orElse(null);
         if (token != null)
             tokenRepository.deleteById(UUID.fromString(tokenId));
     }
 
     public Employee getEmployeeByToken(String tokenBase) {
-        var tokenId = new String(Base64.getUrlDecoder().decode(tokenBase), StandardCharsets.UTF_8);
-        var token = tokenRepository.findById(UUID.fromString(tokenId)).orElse(null);
+        String tokenId = new String(Base64.getUrlDecoder().decode(tokenBase), StandardCharsets.UTF_8);
+        Token token = tokenRepository.findById(UUID.fromString(tokenId)).orElse(null);
         if (token == null) {
             return null;
         }

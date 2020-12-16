@@ -25,7 +25,7 @@ public class ScheduleManagerTests {
 
     @Test
     void shouldFindIntersection() {
-        var scheduleEntry = ScheduleEntry.builder()
+        ScheduleEntry scheduleEntry = ScheduleEntry.builder()
                 .timeStart(testHelper.getTimeAt(14, 20))
                 .timeEnd(testHelper.getTimeAt(15, 0))
                 .build();

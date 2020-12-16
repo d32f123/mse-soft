@@ -28,8 +28,8 @@ public class ReaderService extends EntityService<Reader> {
     }
 
     public Body scanBarcode(ReaderLocation readerLocation, String barcode) {
-        var body = bodyService.getBodyByBarcode(barcode).orElseThrow();
-        var reader = readerRepository.findByLocation(readerLocation).orElseThrow();
+        Body body = bodyService.getBodyByBarcode(barcode).orElseThrow();
+        Reader reader = readerRepository.findByLocation(readerLocation).orElseThrow();
 
         switch (reader.getLocation()) {
             case AT_FRIDGE_ENTRANCE:

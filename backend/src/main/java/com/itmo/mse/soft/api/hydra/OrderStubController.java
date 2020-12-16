@@ -1,6 +1,7 @@
 package com.itmo.mse.soft.api.hydra;
 
 import com.itmo.mse.soft.order.BodyOrder;
+import com.itmo.mse.soft.order.Payment;
 import com.itmo.mse.soft.repository.OrderRepository;
 import com.itmo.mse.soft.repository.PaymentRepository;
 import com.itmo.mse.soft.service.BodyService;
@@ -48,8 +49,8 @@ public class OrderStubController {
 
     @PutMapping
     public ResponseEntity payForOrder(@RequestBody ExecutePayment executePayment) {
-        var payment = paymentRepository.getOne(executePayment.paymentId);
-        var order = orderRepository.findByPaymentId(executePayment.paymentId).orElseThrow();
+        Payment payment = paymentRepository.getOne(executePayment.paymentId);
+        BodyOrder order = orderRepository.findByPaymentId(executePayment.paymentId).orElseThrow();
         if (new BigDecimal(0).compareTo(executePayment.amount) > 0)
             return ResponseEntity.badRequest().body("Bad amount");
         if (order.getPaymentAmount().compareTo(executePayment.amount) > 0)

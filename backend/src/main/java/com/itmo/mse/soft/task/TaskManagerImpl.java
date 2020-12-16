@@ -56,12 +56,12 @@ public class TaskManagerImpl implements TaskManager {
 
   @Override
   public boolean scheduleBody(Instant pickupInstant, Body body) {
-    var initialTask = schedulePickupTask(pickupInstant, body);
+    Task initialTask = schedulePickupTask(pickupInstant, body);
     if (initialTask == null) {
       return false;
     }
 
-    var currentTask = initialTask;
+    Task currentTask = initialTask;
     while (taskTransitionMap.containsKey(currentTask.getTaskType())) {
       currentTask = scheduleTask(
           taskTransitionMap.get(currentTask.getTaskType()),

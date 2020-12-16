@@ -1,5 +1,6 @@
 package com.itmo.mse.soft.api.frontend.v1;
 
+import com.itmo.mse.soft.entity.Employee;
 import com.itmo.mse.soft.entity.EmployeeRole;
 import com.itmo.mse.soft.service.AuthService;
 import com.itmo.mse.soft.service.EmployeeService;
@@ -26,7 +27,7 @@ public class EmployeeController {
 
     @GetMapping("/daily-tasks")
     public ResponseEntity<List<Task>> getCurrentDailyTasks(@RequestHeader(name = "Token") String token) {
-        var employee = authService.getEmployeeByToken(token);
+        Employee employee = authService.getEmployeeByToken(token);
         if (employee == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -36,7 +37,7 @@ public class EmployeeController {
 
     @GetMapping("/get-role")
     public ResponseEntity<EmployeeRole> getRole(@RequestHeader(name = "Token") String token) {
-        var employee = authService.getEmployeeByToken(token);
+        Employee employee = authService.getEmployeeByToken(token);
         if (employee == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -49,12 +50,12 @@ public class EmployeeController {
             @RequestHeader(name = "Token") String token,
             @PathVariable("taskId") UUID taskId
     ) {
-        var employee = authService.getEmployeeByToken(token);
+        Employee employee = authService.getEmployeeByToken(token);
         if (employee == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        var task = employeeService.completeTask(taskId, employee);
+        Task task = employeeService.completeTask(taskId, employee);
         if (task == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -66,12 +67,12 @@ public class EmployeeController {
             @RequestHeader(name="Token") String token,
             @PathVariable("subTaskId") UUID subTaskId
     ) {
-        var employee = authService.getEmployeeByToken(token);
+        Employee employee = authService.getEmployeeByToken(token);
         if (employee == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        var task = employeeService.completeSubTask(subTaskId, employee);
+        Task task = employeeService.completeSubTask(subTaskId, employee);
         if (task == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }

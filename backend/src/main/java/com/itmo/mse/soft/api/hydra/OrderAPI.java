@@ -21,7 +21,7 @@ public class OrderAPI {
         if (bodyOrderQueue.isEmpty()) {
             return Collections.emptyList();
         }
-        var ret = List.copyOf(bodyOrderQueue);
+        List<BodyOrder> ret = List.copyOf(bodyOrderQueue);
         bodyOrderQueue.clear();
         return ret;
 

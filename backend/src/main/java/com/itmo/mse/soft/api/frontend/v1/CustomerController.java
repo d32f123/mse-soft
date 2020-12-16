@@ -1,6 +1,7 @@
 package com.itmo.mse.soft.api.frontend.v1;
 
 import com.itmo.mse.soft.api.hydra.OrderAPI;
+import com.itmo.mse.soft.entity.Body;
 import com.itmo.mse.soft.entity.BodyState;
 import com.itmo.mse.soft.order.BodyOrder;
 import com.itmo.mse.soft.service.BodyService;
@@ -31,7 +32,7 @@ public class CustomerController {
 
     @GetMapping
     public ResponseEntity<BodyState> getBodyState(@RequestParam("paymentId") UUID paymentId) {
-        var body = bodyService.getBodyByPaymentId(paymentId).orElse(null);
+        Body body = bodyService.getBodyByPaymentId(paymentId).orElse(null);
         if (body == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

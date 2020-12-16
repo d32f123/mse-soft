@@ -32,8 +32,8 @@ public class PigstyService extends EntityService<Pigsty> {
     }
 
     public Task reservePigsty(UUID pigstyId, UUID taskId) {
-        var pigsty = pigstyRepository.findById(pigstyId).orElseThrow();
-        var task = taskRepository.findById(taskId).orElseThrow();
+        Pigsty pigsty = pigstyRepository.findById(pigstyId).orElseThrow();
+        Task task = taskRepository.findById(taskId).orElseThrow();
         return reservePigsty(pigsty, task);
     }
 

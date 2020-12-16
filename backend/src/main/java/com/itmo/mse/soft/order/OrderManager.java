@@ -1,6 +1,7 @@
 package com.itmo.mse.soft.order;
 
 import com.itmo.mse.soft.api.hydra.OrderAPI;
+import com.itmo.mse.soft.entity.Body;
 import com.itmo.mse.soft.repository.OrderRepository;
 import com.itmo.mse.soft.repository.PaymentRepository;
 import com.itmo.mse.soft.service.BodyService;
@@ -38,12 +39,12 @@ public class OrderManager {
     @Transactional
     public void orderConsumer() {
         while (!bodyOrderQueue.isEmpty()) {
-            var order = bodyOrderQueue.poll();
-            var orderId = order.getOrderId();
+            BodyOrder order = bodyOrderQueue.poll();
+            UUID orderId = order.getOrderId();
             order.setOrderId(null);
-            var payment = generatePayment(order);
+            Payment payment = generatePayment(order);
 
-            var body = bodyService.createBody(payment);
+            Body body = bodyService.createBody(payment);
             if (body == null) {
                 order.setCancelled(true);
                 orderAPI.cancelOrder(orderId);

@@ -30,7 +30,7 @@ public class BodyService extends EntityService<Body> {
     private TaskManager taskManager;
 
     public Body createBody(Payment payment) {
-        var body = Body.builder()
+        Body body = Body.builder()
                 .payment(payment)
                 .state(BodyState.AWAITING_RECEIVAL)
                 .barcode(null)
