@@ -8,7 +8,12 @@ import static com.itmo.mse.soft.entity.BodyState.IN_RECEIVAL;
 import static com.itmo.mse.soft.task.TaskType.PICKUP;
 
 import com.itmo.mse.soft.api.hydra.OrderAPI;
-import com.itmo.mse.soft.entity.*;
+import com.itmo.mse.soft.entity.Body;
+import com.itmo.mse.soft.entity.BodyState;
+import com.itmo.mse.soft.entity.Employee;
+import com.itmo.mse.soft.entity.EmployeeRole;
+import com.itmo.mse.soft.entity.Pigsty;
+import com.itmo.mse.soft.entity.ReaderLocation;
 import com.itmo.mse.soft.repository.SubTaskRepository;
 import com.itmo.mse.soft.repository.TaskRepository;
 import com.itmo.mse.soft.schedule.ScheduleEntry;
@@ -16,21 +21,33 @@ import com.itmo.mse.soft.schedule.ScheduleManager;
 import com.itmo.mse.soft.service.EmployeeService;
 import com.itmo.mse.soft.service.PigstyService;
 import com.itmo.mse.soft.service.ReaderService;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import java.time.*;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @Slf4j
@@ -108,7 +125,7 @@ public class TaskManagerImpl implements TaskManager {
 
   @Override
   public synchronized Task completeTask(UUID taskId, UUID employeeId) {
-    Task task = taskRepository.findById(taskId).orElseThrow();
+    Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException());
     if (!task.getEmployee().getEmployeeId().equals(employeeId)) {
       return null;
     }
@@ -124,7 +141,7 @@ public class TaskManagerImpl implements TaskManager {
 
   @Override
   public synchronized Task completeSubTask(UUID subTaskId, UUID employeeId) {
-    SubTask subTask = subTaskRepository.findById(subTaskId).orElseThrow();
+    SubTask subTask = subTaskRepository.findById(subTaskId).orElseThrow(() -> new RuntimeException());
     Task task = subTask.getParent();
     if (!task.getEmployee().getEmployeeId().equals(employeeId)) {
       return null;
@@ -213,7 +230,9 @@ public class TaskManagerImpl implements TaskManager {
 
     List<Task> dailyTasks = taskRepository
         .findIntersectionsByEmployeeIdAndTime(employeeId, dayInstant, dayInstant.plus(nextDay));
-    boolean isGroomer = employeeService.getById(employeeId).orElseThrow().getEmployeeRole().equals(EmployeeRole.GROOMER);
+    boolean isGroomer = employeeService.getById(employeeId).orElseThrow(
+        () -> new RuntimeException()
+    ).getEmployeeRole().equals(EmployeeRole.GROOMER);
     if (isGroomer) {
       List<BodyState> possible = new ArrayList<>();
       possible.add(AWAITING_RECEIVAL);

@@ -1,5 +1,12 @@
 package com.itmo.mse.soft;
 
+import static com.itmo.mse.soft.entity.BodyState.GROOMED;
+import static com.itmo.mse.soft.entity.BodyState.RECEIVED;
+import static com.itmo.mse.soft.task.SubTaskType.PICKUP_FROM_CUSTOMER;
+import static com.itmo.mse.soft.task.SubTaskType.PRINT_BARCODE;
+import static com.itmo.mse.soft.task.SubTaskType.PUT_IN_FRIDGE;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.itmo.mse.soft.api.hydra.OrderAPI;
 import com.itmo.mse.soft.entity.Body;
 import com.itmo.mse.soft.entity.BodyState;
@@ -8,7 +15,14 @@ import com.itmo.mse.soft.entity.EmployeeRole;
 import com.itmo.mse.soft.order.BodyOrder;
 import com.itmo.mse.soft.order.OrderManager;
 import com.itmo.mse.soft.order.Payment;
-import com.itmo.mse.soft.repository.*;
+import com.itmo.mse.soft.repository.BodyRepository;
+import com.itmo.mse.soft.repository.EmployeeRepository;
+import com.itmo.mse.soft.repository.OrderRepository;
+import com.itmo.mse.soft.repository.PaymentRepository;
+import com.itmo.mse.soft.repository.PigstyRepository;
+import com.itmo.mse.soft.repository.ScheduleEntryRepository;
+import com.itmo.mse.soft.repository.SubTaskRepository;
+import com.itmo.mse.soft.repository.TaskRepository;
 import com.itmo.mse.soft.service.AuthService;
 import com.itmo.mse.soft.service.BodyService;
 import com.itmo.mse.soft.service.EmployeeService;
@@ -20,32 +34,15 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.MethodOrderer.Alphanumeric;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import static com.itmo.mse.soft.entity.BodyState.GROOMED;
-import static com.itmo.mse.soft.entity.BodyState.RECEIVED;
-import static com.itmo.mse.soft.task.SubTaskType.PICKUP_FROM_CUSTOMER;
-import static com.itmo.mse.soft.task.SubTaskType.PRINT_BARCODE;
-import static com.itmo.mse.soft.task.SubTaskType.PUT_IN_FRIDGE;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -154,7 +151,7 @@ class BusinessProcessTest {
     //wait end of processing
     Thread.sleep(2000);
     List<Payment> payments = paymentRepository.findAllByBodyOrder(createdBodyOrder);
-    Body body = bodyRepository.findBodyByPayment(payments.get(0)).orElseThrow();
+    Body body = bodyRepository.findBodyByPayment(payments.get(0)).orElseThrow(() -> new RuntimeException());
     assertThat(createdBodyOrder.getOrderId()).isEqualTo(body.getPayment().getBodyOrder().getOrderId());
   }
 
@@ -245,7 +242,8 @@ class BusinessProcessTest {
     assert acceptBodyTask != null;
     assertThat(acceptBodyTask.isComplete()).isTrue();
     assertThat(taskRepository.findAllByIsComplete(false)).hasSize(2);
-    assertThat(bodyRepository.findBodyByBarcode(barCode).orElseThrow().getState()).isEqualTo(RECEIVED);
+    assertThat(bodyRepository.findBodyByBarcode(barCode).orElseThrow(() -> new RuntimeException()).getState())
+        .isEqualTo(RECEIVED);
   }
 
 
@@ -267,7 +265,8 @@ class BusinessProcessTest {
       employeeService.completeSubTask(sub.getSubTaskId(), sub.getParent().getEmployee());
     }
     assertThat(taskRepository.findAllByIsComplete(false)).hasSize(1);
-    assertThat(bodyRepository.findBodyByBarcode(barCode).orElseThrow().getState()).isEqualTo(GROOMED);
+    assertThat(bodyRepository.findBodyByBarcode(barCode).orElseThrow(() -> new RuntimeException()).getState())
+        .isEqualTo(GROOMED);
   }
 
 
@@ -300,7 +299,7 @@ class BusinessProcessTest {
 
   void checkBodyStatus() {
     feedPigs(); //1
-    Body body = bodyService.getBodyByBarcode(barCode).orElseThrow();
+    Body body = bodyService.getBodyByBarcode(barCode).orElseThrow(() -> new RuntimeException());
     assertThat(body.getState()).isEqualTo(BodyState.FED);
   }
 }

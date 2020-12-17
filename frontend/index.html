@@ -1,90 +1,116 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 
-        <title>Свиноферма</title>
+  <title>Свиноферма</title>
 
-        <script src="js/utils.js"></script>
-        <script>
-            function signInSuccess(response) {
-                if (response === "") {
-                    signInError()
-                } else {
-                    console.log("Token: " + response);
-                    let role = getRole(response);
-                    if (role === "GROOMER") {
-                        redirectToGroomerPage(response);
-                    } else {
-                        redirectToPigMasterPage(response);
-                    }
-                }
-            }
+  <script src="js/utils.js"></script>
+  <script>
+    function signInSuccess(response) {
+      if (response === "") {
+        signInError()
+      } else {
+        console.log("Token: " + response);
+        let role = getRole(response);
+        if (role === "GROOMER") {
+          redirectToGroomerPage(response);
+        } else {
+          redirectToPigMasterPage(response);
+        }
+      }
+    }
 
-            function signInError() {
-                let msgErrorBox = document.getElementById("msg-error-box");
-                msgErrorBox.innerHTML = "<div class=\"alert alert-danger\" role=\"alert\" id=\"msg-error\">\nОшибка авторизации!\n</div>";
-            }
+    function signInError() {
+      let msgErrorBox = document.getElementById("msg-error-box");
+      msgErrorBox.innerHTML = "<div class=\"alert alert-danger\" role=\"alert\" id=\"msg-error\">\nОшибка авторизации!\n</div>";
+    }
 
-            function submit() {
-                console.log("submit() start");
+    function submit() {
+      console.log("submit() start");
 
-                userName = document.getElementById("username").value;
-                let password = document.getElementById("password").value;
-                auth(
-                    {'userName': userName, 'password': password},
-                    signInSuccess,
-                    signInError
-                );
+      userName = document.getElementById("username").value;
+      let password = document.getElementById("password").value;
+      auth(
+          {'userName': userName, 'password': password},
+          signInSuccess,
+          signInError
+      );
 
-                console.log("submit() finish");
-            }
-        </script>
-    </head>
-    <body>
-        <div style="padding: 10%;">
-            <h1 align="center" style="padding-bottom: 15px">Добро пожаловать</h1>
-            <div class="container">
-                <div class="form-row justify-content-center mb-2">
-                    <div class="col-2">
-                        <label for="username">Имя пользователя</label>
-                    </div>
-                    <div class="col-2">
-                        <input type="text" class="form-control" id="username" name="username" value="Shureek" required>
-                    </div>
-                </div>
-                <div class="form-row justify-content-center mb-2">
-                    <div class="col-2">
-                        <label for="username">Пароль</label>
-                    </div>
-                    <div class="col-2">
-                        <input type="password" class="form-control" id="password" name="password" value="Shureek" required>
-                    </div>
-                </div>
-                <div class="form-row justify-content-center mb-2">
-                    <div class="col-4">
-                        <button type="button" class="btn btn-outline-info btn-block" id="submit" onclick="submit()">Войти</button>
-                    </div>
-                </div>
-                <div class="form-row justify-content-center mb-2">
-                    <div class="col-4" id="msg-error-box">
-                    </div>
-                </div>
-            </div>
-        </div>
+      console.log("submit() finish");
+    }
+  </script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light">
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto"></ul>
+    <form class="form-inline">
+      <button type="button" class="btn btn-outline-info btn-block" id="id-logout" onclick="redirectToPortPage()">
+        Настройки Порта
+      </button>
+    </form>
+  </div>
+</nav>
+<div style="padding: 10%;">
+  <h1 align="center" style="padding-bottom: 15px">Добро пожаловать</h1>
+  <h4 align="center" style="padding-bottom: 15px">Авторизуйтесь</h4>
+  <div class="container">
+    <div class="form-row justify-content-center mb-2">
+      <div class="col-2">
+        <label for="username">Имя пользователя</label>
+      </div>
+      <div class="col-2">
+        <input type="text" class="form-control" id="username" name="username" value="Shureek" required>
+      </div>
+    </div>
+    <div class="form-row justify-content-center mb-2">
+      <div class="col-2">
+        <label for="username">Пароль</label>
+      </div>
+      <div class="col-2">
+        <input type="password" class="form-control" id="password" name="password" value="Shureek" required>
+      </div>
+    </div>
+    <div class="form-row justify-content-center mb-2">
+      <div class="col-4">
+        <button type="button" class="btn btn-outline-info btn-block" id="submit" onclick="submit()">Войти</button>
+      </div>
+    </div>
+    <div class="form-row justify-content-center mb-2">
+      <div class="col-4" id="msg-error-box">
+      </div>
+    </div>
+  </div>
 
-        <!-- Optional JavaScript -->
-        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-        <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
-        <script src="https://editor.unlayer.com/embed.js"></script>
-        <div id="editor" style="height: 400px"></div>
+  <h4 align="center" style="padding-bottom: 15px">или сделайте заказ</h4>
+  <div style="padding-left: 10%; padding-right: 10%;" class="form-row justify-content-center mb-2">
+    <div class="col-4">
+      <button type="button" class="btn btn-outline-info btn-block" id="goToCustomer" onclick="redirectToCustomerPage()">
+        Сделать заказ
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+<script src="https://editor.unlayer.com/embed.js"></script>
+<div id="editor" style="height: 400px"></div>
 <!--        <script>-->
 <!--            unlayer.init({-->
 <!--                id: 'editor',-->
@@ -92,5 +118,5 @@
 <!--                templateId: "20207"-->
 <!--            })-->
 <!--        </script>-->
-    </body>
+</body>
 </html>

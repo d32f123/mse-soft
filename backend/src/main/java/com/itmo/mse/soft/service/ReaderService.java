@@ -4,12 +4,11 @@ import com.itmo.mse.soft.entity.Body;
 import com.itmo.mse.soft.entity.Reader;
 import com.itmo.mse.soft.entity.ReaderLocation;
 import com.itmo.mse.soft.repository.ReaderRepository;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -28,8 +27,8 @@ public class ReaderService extends EntityService<Reader> {
     }
 
     public Body scanBarcode(ReaderLocation readerLocation, String barcode) {
-        Body body = bodyService.getBodyByBarcode(barcode).orElseThrow();
-        Reader reader = readerRepository.findByLocation(readerLocation).orElseThrow();
+        Body body = bodyService.getBodyByBarcode(barcode).orElseThrow(() -> new RuntimeException());
+        Reader reader = readerRepository.findByLocation(readerLocation).orElseThrow(() -> new RuntimeException());
 
         switch (reader.getLocation()) {
             case AT_FRIDGE_ENTRANCE:

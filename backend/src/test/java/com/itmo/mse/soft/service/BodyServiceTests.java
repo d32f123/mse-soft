@@ -1,23 +1,26 @@
 package com.itmo.mse.soft.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.itmo.mse.soft.TableCleaner;
 import com.itmo.mse.soft.TestHelper;
-import com.itmo.mse.soft.entity.*;
+import com.itmo.mse.soft.entity.Body;
+import com.itmo.mse.soft.entity.BodyState;
+import com.itmo.mse.soft.entity.Employee;
+import com.itmo.mse.soft.entity.EmployeeRole;
+import com.itmo.mse.soft.entity.Pigsty;
 import com.itmo.mse.soft.order.BodyOrder;
 import com.itmo.mse.soft.order.Payment;
 import com.itmo.mse.soft.repository.BodyRepository;
 import com.itmo.mse.soft.repository.EmployeeRepository;
 import com.itmo.mse.soft.repository.PigstyRepository;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 public class BodyServiceTests {
@@ -62,7 +65,7 @@ public class BodyServiceTests {
 
         bodyService.save(body);
 
-        Body loadedBody = bodyService.getBodyByBarcode(body.getBarcode()).orElseThrow();
+        Body loadedBody = bodyService.getBodyByBarcode(body.getBarcode()).orElseThrow(() -> new RuntimeException());
         assertThat(loadedBody).isEqualToIgnoringGivenFields(body, "payment");
     }
 
@@ -72,7 +75,8 @@ public class BodyServiceTests {
 
         bodyService.save(body);
 
-        Body loadedBody = bodyService.getBodyByPaymentId(body.getPayment().getPaymentId()).orElseThrow();
+        Body loadedBody = bodyService.getBodyByPaymentId(body.getPayment().getPaymentId())
+            .orElseThrow(() -> new RuntimeException());
         assertThat(loadedBody).isEqualToIgnoringGivenFields(body, "payment");
     }
 

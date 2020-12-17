@@ -5,13 +5,12 @@ import com.itmo.mse.soft.repository.PigstyRepository;
 import com.itmo.mse.soft.repository.TaskRepository;
 import com.itmo.mse.soft.task.Task;
 import com.itmo.mse.soft.task.TaskType;
+import java.time.Duration;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -32,8 +31,8 @@ public class PigstyService extends EntityService<Pigsty> {
     }
 
     public Task reservePigsty(UUID pigstyId, UUID taskId) {
-        Pigsty pigsty = pigstyRepository.findById(pigstyId).orElseThrow();
-        Task task = taskRepository.findById(taskId).orElseThrow();
+        Pigsty pigsty = pigstyRepository.findById(pigstyId).orElseThrow(() -> new RuntimeException());
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException());
         return reservePigsty(pigsty, task);
     }
 

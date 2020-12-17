@@ -1,4 +1,6 @@
-let host = "http://localhost:8080";
+let port = 20755;
+let hostname = "http://localhost:";
+let host = hostname + port;
 let authUrl = host + "/api/v1/auth";
 let getRoleUrl = host + "/api/v1/employees/get-role";
 let dailyTasksUrl = host + "/api/v1/employees/daily-tasks";
@@ -9,6 +11,7 @@ let payUrl = host + "/api/v1/hydra/orders"
 let token;
 let taskUrl = "task.html";
 var userName;
+redirectToCustomerPage
 
 function auth(data, success, error) {
   userName = data.username;
@@ -138,8 +141,7 @@ function logout() {
     dataType: "json",
     headers: {Token: token}
   });
-  window.open("index.html", "_self");
-  console.log("redirectToindexPage() finished");
+  redirectToIndexPage();
 }
 
 function getTasks(token, success, error) {
@@ -151,6 +153,20 @@ function getTasks(token, success, error) {
     dataType: "json",
     headers: {Token: token}
   });
+}
+
+function changePort() {
+  port = document.getElementById("portInput").value;
+  updateUrls();
+}
+
+function updateUrls() {
+  host = hostname + port;
+  authUrl = host + "/api/v1/auth";
+  getRoleUrl = host + "/api/v1/employees/get-role";
+  dailyTasksUrl = host + "/api/v1/employees/daily-tasks";
+  completeTaskUrl = host + "/api/v1/employees/complete-task";
+  completeSubTaskUrl = host + "/api/v1/employees/complete-sub-task";
 }
 
 function redirectToGroomerPage(token) {
@@ -167,6 +183,30 @@ function redirectToPigMasterPage(token) {
   window.open("pig_master.html?token=" + token, "_self");
 
   console.log("redirectToPigMasterPage finish");
+}
+
+function redirectToPortPage() {
+  console.log("redirectToPortPage start");
+
+  window.open("port.html", "_self");
+
+  console.log("redirectToPortPage finish");
+}
+
+function redirectToCustomerPage() {
+  console.log("redirectToCustomerPage start");
+
+  window.open("customer.html", "_self");
+
+  console.log("redirectToCustomerPage finish");
+}
+
+function redirectToIndexPage() {
+  console.log("redirectToIndexPage start");
+
+  window.open("index.html", "_self");
+
+  console.log("redirectToIndexPage finish");
 }
 
 function createGroomerTable(token) {

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+  <meta charset="UTF-8">
+  <title>Настройки порта</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <script src="js/utils.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light">
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto"></ul>
+    <form class="form-inline">
+      <button type="button" class="btn btn-outline-info btn-block" id="id-logout" onclick="redirectToIndexPage()">На
+        главную
+      </button>
+    </form>
+  </div>
+</nav>
+<div class="justify-content-center mb-2" align="center" style="padding-top: 10%;">
+  <div align="center" class="col-2">
+    <input type="text" class="form-control" id="portInput" name="portInput" value="20755" required>
+  </div>
+  <div class="col-2" style="padding-top: 1%;">
+    <button type="button" class="btn btn-outline-info btn-block" id="port" onclick="changePort()">Обновить Порт</button>
+  </div>
+</div>
+</body>
+</html>
