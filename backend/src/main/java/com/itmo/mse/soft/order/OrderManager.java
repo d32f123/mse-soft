@@ -5,17 +5,16 @@ import com.itmo.mse.soft.entity.Body;
 import com.itmo.mse.soft.repository.OrderRepository;
 import com.itmo.mse.soft.repository.PaymentRepository;
 import com.itmo.mse.soft.service.BodyService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -55,7 +54,7 @@ public class OrderManager {
 //            paymentRepository.save(payment);
 //            orderRepository.save(order);
 //            bodyService.save(body);
-            orderAPI.confirmOrder(order.getOrderId(), payment.getBitcoinAddress(), buildStateUrl(payment));
+            orderAPI.confirmOrder(order, payment.getBitcoinAddress(), buildStateUrl(payment));
             order.setConfirmed(true);
 
         }

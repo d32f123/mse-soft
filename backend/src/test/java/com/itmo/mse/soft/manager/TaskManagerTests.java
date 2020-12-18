@@ -1,5 +1,7 @@
 package com.itmo.mse.soft.manager;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.itmo.mse.soft.TableCleaner;
 import com.itmo.mse.soft.TestHelper;
 import com.itmo.mse.soft.entity.Body;
@@ -12,18 +14,15 @@ import com.itmo.mse.soft.repository.EmployeeRepository;
 import com.itmo.mse.soft.repository.PigstyRepository;
 import com.itmo.mse.soft.task.Task;
 import com.itmo.mse.soft.task.TaskManager;
-import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
+import java.time.temporal.ChronoField;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 //@ActiveProfiles("postgres")
@@ -74,8 +73,9 @@ public class TaskManagerTests {
 
 
         assertThat(taskManager.getDailyTasks(
-                employee.getEmployeeId(),
-                LocalDate.ofInstant(instance, ZoneOffset.UTC)
+            employee.getEmployeeId(),
+            LocalDate.of(instance.get(ChronoField.YEAR), instance.get(ChronoField.MONTH_OF_YEAR),
+                instance.get(ChronoField.DAY_OF_MONTH))
         ).size()).isEqualTo(2);
     }
 

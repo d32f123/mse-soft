@@ -147,7 +147,7 @@ class BusinessProcessTest {
 
   @SneakyThrows
   void reserveSlot() {
-    orderAPI.queueOrder(createdBodyOrder);
+    orderAPI.queueOrderAndWaitResults(createdBodyOrder);
     //wait end of processing
     Thread.sleep(2000);
     List<Payment> payments = paymentRepository.findAllByBodyOrder(createdBodyOrder);

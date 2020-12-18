@@ -17,26 +17,38 @@
         </script>
     </head>
     <body>
-        <div style="padding: 10%;">
-            <h1 align="center" style="padding-bottom: 15px">Добро пожаловать в Hydra магазин Свинофермы, анонимный заказчик </h1>
-            <div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto"></ul>
+            <form class="form-inline">
+                <button type="button" class="btn btn-outline-info btn-block" id="id-logout"
+                        onclick="redirectToIndexPage()">На
+                    главную
+                </button>
+            </form>
+        </div>
+    </nav>
+    <div style="padding: 10%;">
+        <h1 align="center" style="padding-bottom: 15px">Добро пожаловать в Hydra магазин Свинофермы, анонимный
+            заказчик </h1>
+        <div class="container">
 
-                <h4 align="center">0. Создай заказ, если его еще нет</h4>
-                <div class="form-row justify-content-center mb-2">
-                    <div class="col-2">
-                        <label for="paymentIdPost">Payment Id</label>
-                    </div>
-                    <div class="col-5">
-                        <input type="text" class="form-control" id="paymentIdPost" readonly="true" value="пусто" required>
-                    </div>
+            <h4 align="center">0. Создай заказ, если его еще нет</h4>
+            <div class="form-row justify-content-center mb-2">
+                <div class="col-2">
+                    <label for="paymentIdPost">Payment Id</label>
                 </div>
-                <div class="form-row justify-content-center mb-2">
-                    <div class="col-2">
-                        <label for="amountPost">К оплате</label>
-                    </div>
-                    <div class="col-5">
-                        <input type="text" class="form-control" id="amountPost" readonly="true" value="0" required>
-                    </div>
+                <div class="col-5">
+                    <input type="text" class="form-control" id="paymentIdPost" readonly="true" value="пусто" required>
+                </div>
+            </div>
+            <div class="form-row justify-content-center mb-2">
+                <div class="col-2">
+                    <label for="amountPost">К оплате</label>
+                </div>
+                <div class="col-5">
+                    <input type="text" class="form-control" id="amountPost" readonly="true" value="0" required>
+                </div>
                 </div>
                 <div class="form-row justify-content-center mb-2">
                     <div class="col-4">
